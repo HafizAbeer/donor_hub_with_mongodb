@@ -28,7 +28,14 @@
     "react-router-dom": "^7.9.6",
     "recharts": "^3.4.1",
     "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^4.1.17"
+    "tailwindcss": "^4.1.17",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.4",
+    "nodemailer": "^8.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
