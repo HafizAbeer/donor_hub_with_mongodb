@@ -16,7 +16,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://donor-hub-gold.vercel.app',
         changeOrigin: true,
       },
     },
