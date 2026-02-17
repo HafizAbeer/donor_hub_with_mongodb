@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   useSidebar,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
@@ -192,7 +193,6 @@ export default function Layout({ children }) {
         <Sidebar
           side="left"
           variant="sidebar"
-          collapsible="none"
           className="bg-gradient-to-b from-red-50 to-pink-50 dark:from-red-950 dark:to-pink-950 border-r border-red-200 dark:border-red-900"
         >
           <SidebarContentInner />
@@ -201,7 +201,8 @@ export default function Layout({ children }) {
 
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <header className="h-14 md:h-16 border-b border-red-200 dark:border-red-900 bg-white dark:bg-red-950/50 flex items-center px-3 md:px-4 flex-shrink-0">
-            <div className="min-w-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <SidebarTrigger className="md:hidden text-red-700 dark:text-red-400" />
               <h1 className="text-base md:text-xl font-bold text-red-900 dark:text-red-100 truncate">
                 {getPageTitle()}
               </h1>
