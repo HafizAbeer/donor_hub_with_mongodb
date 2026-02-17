@@ -53,7 +53,7 @@ export default function Signup() {
         password: formData.password,
         bloodGroup: formData.bloodGroup,
         city: formData.city,
-        address: formData.address, // Optional
+        address: formData.address,
         hostelite: formData.hostelite === "true" || formData.hostelite === true,
         role: "user",
       };

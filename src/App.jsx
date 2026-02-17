@@ -22,7 +22,6 @@ import "./App.css";
 function PrivateRoutes() {
   const { user, token, isAuthenticated, isLoading } = useAuth();
 
-  // Show loading state while checking authentication
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-red-50 dark:from-red-950 dark:via-pink-950 dark:to-red-950">
@@ -34,12 +33,10 @@ function PrivateRoutes() {
     );
   }
 
-  // Redirect to login if not authenticated
   if (!isAuthenticated || !user || !token) {
     return <Navigate to="/login" replace />;
   }
 
-  // Only render Layout if authenticated
   return (
     <Layout>
       <Routes>
@@ -135,7 +132,6 @@ function RootRedirect() {
     );
   }
 
-  // Redirect to dashboard if authenticated, otherwise to login
   if (isAuthenticated && user && token) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -146,7 +142,6 @@ function RootRedirect() {
 function PublicRoute({ children }) {
   const { user, token, isAuthenticated, isLoading } = useAuth();
 
-  // Show loading while checking auth
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-red-50 dark:from-red-950 dark:via-pink-950 dark:to-red-950">
@@ -158,7 +153,6 @@ function PublicRoute({ children }) {
     );
   }
 
-  // If authenticated, redirect to dashboard
   if (isAuthenticated && user && token) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -166,9 +160,17 @@ function PublicRoute({ children }) {
   return children;
 }
 
+import { useOfflineSync } from "./hooks/useOfflineSync";
+
+function OfflineSyncHandler() {
+  useOfflineSync();
+  return null;
+}
+
 function App() {
   return (
     <AuthProvider>
+      <OfflineSyncHandler />
       <BrowserRouter>
         <Routes>
           <Route

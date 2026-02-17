@@ -13,7 +13,7 @@ const donationSchema = new mongoose.Schema({
         default: Date.now,
     },
     amount: {
-        type: Number, // in ml or units
+        type: Number,
         default: 1,
     },
     location: {

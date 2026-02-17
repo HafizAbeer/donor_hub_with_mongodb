@@ -1,31 +1,22 @@
 
 import User from '../models/User.js';
 
-// @desc    Get all users (donors)
-// @route   GET /api/users
-// @access  Private
 const getUsers = async (req, res) => {
     try {
         const { bloodGroup, city, available, search, role } = req.query;
 
         let query = {};
 
-        // Filter by Role (Admins/SuperAdmins only)
         if (role && (req.user.role === 'admin' || req.user.role === 'superadmin')) {
             query.role = role;
         }
-
-        // Filter by Blood Group
         if (bloodGroup) {
             query.bloodGroup = bloodGroup;
         }
 
-        // Filter by City
         if (city) {
             query.city = city;
         }
-
-        // Search by Name or Email
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
@@ -34,17 +25,11 @@ const getUsers = async (req, res) => {
             ];
         }
 
-        // Default: Sort by newest
-        // Filter by visibility for non-admin users
         if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
             query.profileVisibility = true;
         }
 
         const users = await User.find(query).select('-password').sort({ createdAt: -1 });
-
-        // Client-side availability logic moved here if needed, or keeping it simple
-        // Logic for availability based on lastDonationDate can be handled here or in frontend
-        // For now, returning all donors matching criteria
 
         res.json(users);
     } catch (error) {
@@ -52,9 +37,6 @@ const getUsers = async (req, res) => {
     }
 };
 
-// @desc    Create a new user (Admin)
-// @route   POST /api/users
-// @access  Private/Admin
 const createUser = async (req, res) => {
     const {
         name, email, password, phone, bloodGroup, city, address,
@@ -90,7 +72,7 @@ const createUser = async (req, res) => {
             medicalConditions,
             allergies,
             permissions,
-            isVerified: (role === 'admin' || role === 'superadmin') ? true : true, // Admin created users are verified by default
+            isVerified: (role === 'admin' || role === 'superadmin') ? true : true,
         });
 
         if (user) {
@@ -108,15 +90,11 @@ const createUser = async (req, res) => {
     }
 };
 
-// @desc    Update user
-// @route   PUT /api/users/:id
-// @access  Private/Admin or Self
 const updateUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
 
         if (user) {
-            // Check permissions: Admin/SuperAdmin or Self
             if (req.user.role !== 'admin' && req.user.role !== 'superadmin' && req.user._id.toString() !== user._id.toString()) {
                 return res.status(401).json({ message: 'Not authorized to update this profile' });
             }
@@ -136,10 +114,8 @@ const updateUser = async (req, res) => {
             user.profileVisibility = req.body.profileVisibility !== undefined ? req.body.profileVisibility : user.profileVisibility;
             user.permissions = req.body.permissions || user.permissions;
 
-            // Role update only by SuperAdmin
             if (req.user.role === 'superadmin' && req.body.role) {
                 user.role = req.body.role;
-                // Auto-verify if promoted to admin/superadmin
                 if (user.role === 'admin' || user.role === 'superadmin') {
                     user.isVerified = true;
                 }
@@ -160,9 +136,6 @@ const updateUser = async (req, res) => {
     }
 };
 
-// @desc    Delete user
-// @route   DELETE /api/users/:id
-// @access  Private/Admin
 const deleteUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -178,9 +151,6 @@ const deleteUser = async (req, res) => {
     }
 };
 
-// @desc    Get user by ID
-// @route   GET /api/users/:id
-// @access  Private
 const getUserById = async (req, res) => {
     try {
         const user = await User.findById(req.params.id).select('-password');

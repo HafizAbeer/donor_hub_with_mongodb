@@ -2,12 +2,8 @@ import BloodRequest from '../models/BloodRequest.js';
 import User from '../models/User.js';
 import sendEmail from '../utils/sendEmail.js';
 
-// @desc    Get all blood requests
-// @route   GET /api/requests
-// @access  Private
 const getRequests = async (req, res) => {
     try {
-        // If admin/superadmin, return all. If user, return only created by them.
         let query = {};
         if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
             query.createdBy = req.user._id;
@@ -23,9 +19,6 @@ const getRequests = async (req, res) => {
     }
 };
 
-// @desc    Create a new blood request
-// @route   POST /api/requests
-// @access  Private
 const createRequest = async (req, res) => {
     console.log('Incoming Blood Request:', JSON.stringify(req.body, null, 2));
     const { patientName, bloodGroup, hospital, countryCode, contactNumber, requiredTime, status, notes } = req.body;
@@ -46,12 +39,11 @@ const createRequest = async (req, res) => {
         const createdRequest = await request.save();
         await createdRequest.populate('createdBy', 'name');
 
-        // Send Notifications to matching donors
         try {
             const matchingDonors = await User.find({
                 bloodGroup: bloodGroup,
                 emailNotifications: true,
-                _id: { $ne: req.user._id } // Don't notify the creator
+                _id: { $ne: req.user._id }
             });
 
             if (matchingDonors.length > 0) {
@@ -69,7 +61,6 @@ const createRequest = async (req, res) => {
                     Please contact if you can help.
                 `;
 
-                // Send email to each donor (or use a mailing list pattern)
                 for (const email of donorEmails) {
                     await sendEmail({
                         email,
@@ -93,15 +84,11 @@ const createRequest = async (req, res) => {
     }
 };
 
-// @desc    Update request status
-// @route   PUT /api/requests/:id
-// @access  Private
 const updateRequest = async (req, res) => {
     try {
         const request = await BloodRequest.findById(req.params.id);
 
         if (request) {
-            // Check permissions
             if (req.user.role !== 'admin' && req.user.role !== 'superadmin' && request.createdBy.toString() !== req.user._id.toString()) {
                 return res.status(401).json({ message: 'Not authorized' });
             }
@@ -126,15 +113,11 @@ const updateRequest = async (req, res) => {
     }
 };
 
-// @desc    Delete request
-// @route   DELETE /api/requests/:id
-// @access  Private
 const deleteRequest = async (req, res) => {
     try {
         const request = await BloodRequest.findById(req.params.id);
 
         if (request) {
-            // Check permissions
             if (req.user.role !== 'admin' && req.user.role !== 'superadmin' && request.createdBy.toString() !== req.user._id.toString()) {
                 return res.status(401).json({ message: 'Not authorized' });
             }

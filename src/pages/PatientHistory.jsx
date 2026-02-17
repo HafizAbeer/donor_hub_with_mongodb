@@ -118,7 +118,6 @@ export default function PatientHistory() {
   const canViewAllRecords = isAdmin || isSuperAdmin;
   const [loading, setLoading] = useState(true);
 
-  // Modal States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
@@ -141,8 +140,8 @@ export default function PatientHistory() {
         const data = await res.json();
         setRecords(data.map(r => ({
           ...r,
-          id: r._id, // map _id to id for compatibility
-          hospital: r.hospital || "", // ensure string
+          id: r._id,
+          hospital: r.hospital || "",
           notes: r.notes || "",
           contactNumber: r.contactNumber || "",
           requiredTime: r.requiredTime || ""
@@ -160,9 +159,6 @@ export default function PatientHistory() {
   }, [formData.countryCode]);
 
   const scopedRecords = useMemo(() => {
-    // Backend already handles filtering:
-    // Regular users receive only their own records.
-    // Admins/SuperAdmins receive all records.
     return records;
   }, [records]);
 
@@ -340,8 +336,6 @@ export default function PatientHistory() {
   };
 
   const handleClearAll = async () => {
-    // Backend doesn't support clear all yet, maybe just loop delete or add endpoint?
-    // For now, implementing individual delete.
     if (!confirm("Clear all is not fully supported via API yet. Delete individually.")) return;
   };
 
@@ -644,7 +638,6 @@ export default function PatientHistory() {
         </CardContent>
       </Card>
 
-      {/* Success Modal */}
       {
         isSuccessModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
@@ -659,7 +652,6 @@ export default function PatientHistory() {
         )
       }
 
-      {/* Delete Confirmation Modal */}
       {
         isDeleteModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
@@ -698,7 +690,6 @@ export default function PatientHistory() {
         )
       }
 
-      {/* Edit Modal */}
       {
         isEditModalOpen && selectedRecord && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">

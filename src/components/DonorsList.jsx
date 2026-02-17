@@ -131,7 +131,6 @@ export default function DonorsList() {
   const [donors, setDonors] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Modal States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -140,7 +139,7 @@ export default function DonorsList() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isMarkingDonated, setIsMarkingDonated] = useState(null); // ID of donor being updated
+  const [isMarkingDonated, setIsMarkingDonated] = useState(null);
   const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
   const [donationLocation, setDonationLocation] = useState("");
   const [donorForDonation, setDonorForDonation] = useState(null);
@@ -207,7 +206,6 @@ export default function DonorsList() {
     );
   });
 
-  // Chart data
   const bloodGroupStats = useMemo(
     () =>
       bloodGroups
@@ -337,7 +335,7 @@ export default function DonorsList() {
 
   const handleMarkDonatedToday = (donor) => {
     setDonorForDonation(donor);
-    setDonationLocation(""); // Reset location
+    setDonationLocation("");
     setIsDonationModalOpen(true);
   };
 
@@ -353,7 +351,6 @@ export default function DonorsList() {
     setIsDonationModalOpen(false);
     setIsMarkingDonated(donorId);
     try {
-      // Create a real donation record which also updates the user's count and date
       const res = await fetch('/api/donations', {
         method: 'POST',
         headers: {
@@ -370,7 +367,6 @@ export default function DonorsList() {
       });
 
       if (res.ok) {
-        // We need to fetch the updated user to get the new donation count and date
         const userRes = await fetch(`/api/users/${donorId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -733,7 +729,6 @@ export default function DonorsList() {
         )}
       </Card>
 
-      {/* Edit Donor Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <Card className="w-full max-w-md p-6 bg-white dark:bg-red-950 border-red-200 dark:border-red-900 relative">
@@ -853,7 +848,6 @@ export default function DonorsList() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <Card className="w-full max-w-md p-6 bg-white dark:bg-red-950 border-red-200 dark:border-red-900 relative">
@@ -920,7 +914,6 @@ export default function DonorsList() {
           </Card>
         </div>
       )}
-      {/* Donor Details Modal */}
       <Transition appear show={isDetailsModalOpen} as={Fragment}>
         <Dialog
           as="div"
@@ -953,7 +946,6 @@ export default function DonorsList() {
                 <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-red-100 dark:border-red-900 shadow-2xl transition-all">
                   {donorToShow && (
                     <div className="relative">
-                      {/* Header with Blood Group Badge */}
                       <div className="h-32 bg-gradient-to-r from-red-600 to-pink-600 relative">
                         <button
                           onClick={() => setIsDetailsModalOpen(false)}
@@ -974,7 +966,6 @@ export default function DonorsList() {
                       </div>
 
                       <div className="pt-14 pb-8 px-8">
-                        {/* Name and Status */}
                         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
                           <div>
                             <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
@@ -1001,9 +992,7 @@ export default function DonorsList() {
                           </div>
                         </div>
 
-                        {/* Grid Content */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {/* Personal Info */}
                           <div className="space-y-4">
                             <h3 className="text-sm font-bold text-red-600 uppercase tracking-wider flex items-center gap-2">
                               <User className="w-4 h-4" />
@@ -1031,7 +1020,6 @@ export default function DonorsList() {
                             </div>
                           </div>
 
-                          {/* Medical History */}
                           <div className="space-y-4">
                             <h3 className="text-sm font-bold text-red-600 uppercase tracking-wider flex items-center gap-2">
                               <Heart className="w-4 h-4" />
@@ -1057,7 +1045,6 @@ export default function DonorsList() {
                             </div>
                           </div>
 
-                          {/* Emergency Contact - Full width on grid */}
                           <div className="md:col-span-2 space-y-4">
                             <h3 className="text-sm font-bold text-red-600 uppercase tracking-wider flex items-center gap-2">
                               <Phone className="w-4 h-4" />
@@ -1121,7 +1108,6 @@ export default function DonorsList() {
         </Dialog>
       </Transition>
 
-      {/* Hospital Location Prompt Modal */}
       {isDonationModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <Card className="w-full max-w-sm p-6 bg-white dark:bg-red-950 border-red-200 dark:border-red-900 shadow-2xl animate-in zoom-in duration-200">
@@ -1165,7 +1151,6 @@ export default function DonorsList() {
         </div>
       )}
 
-      {/* Global Success/Error Modal (Standalone) */}
       <Transition appear show={showSuccess || !!errorMessage} as={Fragment}>
         <Dialog
           as="div"

@@ -27,7 +27,6 @@ export default function Login() {
       console.log("Login Error:", err);
       console.log("Error Data:", err.data);
       if (err.data && err.data.isVerified === false) {
-        // Redirect to verification page with email
         navigate("/verification-code", { state: { email: err.data.email || formData.email } });
       } else {
         setError(err.message || "Invalid email or password");

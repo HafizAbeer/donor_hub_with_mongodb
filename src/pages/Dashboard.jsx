@@ -7,7 +7,6 @@ import UserDashboard from "./dashboards/UserDashboard";
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
 
-  // Show loading state while checking authentication
   if (isLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -19,16 +18,12 @@ export default function Dashboard() {
     );
   }
 
-  // Show SuperAdmin dashboard for superadmin role
   if (user.role === "superadmin") {
     return <SuperAdminDashboard />;
   }
-
-  // Show Admin dashboard for admin role
   if (user.role === "admin") {
     return <AdminDashboard />;
   }
 
-  // Show User dashboard for user role or default
   return <UserDashboard />;
 }

@@ -25,7 +25,6 @@ const AdminsList = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterRole, setFilterRole] = useState("");
 
-    // Modal States
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [adminToEdit, setAdminToEdit] = useState(null);
@@ -245,7 +244,6 @@ const AdminsList = () => {
                 </div>
             </Card>
 
-            {/* Edit Modal */}
             {isEditModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <Card className="w-full max-w-md p-6 bg-white dark:bg-red-950 border-red-200 relative">
@@ -300,7 +298,6 @@ const AdminsList = () => {
                 </div>
             )}
 
-            {/* Delete Confirmation */}
             {isDeleteModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <Card className="w-full max-w-sm p-6 bg-white dark:bg-red-950 border-red-200">
@@ -326,7 +323,6 @@ const AdminsList = () => {
                 </div>
             )}
 
-            {/* General Error Toast */}
             {errorMessage && (
                 <div className="fixed bottom-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-[100]">
                     <AlertTriangle size={20} />

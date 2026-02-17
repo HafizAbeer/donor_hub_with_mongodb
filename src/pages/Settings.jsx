@@ -15,7 +15,6 @@ export default function Settings() {
     profileVisibility: user?.profileVisibility ?? true,
   });
 
-  // Update settings when user data is available
   useEffect(() => {
     if (user) {
       setSettings(prev => ({
@@ -43,7 +42,6 @@ export default function Settings() {
   const [errorMessage, setErrorMessage] = useState("");
   const [errors, setErrors] = useState({});
 
-  // Initialize theme on mount and when it changes
   useEffect(() => {
     if (settings.theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -80,7 +78,6 @@ export default function Settings() {
     setSettings({ ...settings, [key]: value });
     if (key === 'theme') {
       localStorage.setItem('theme', value);
-      // We also save to backend when "Save General Settings" is clicked
     }
   };
 
@@ -455,7 +452,6 @@ export default function Settings() {
         </Card>
       </div>
 
-      {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
           <Card className="w-full max-w-sm p-8 bg-white dark:bg-red-950 border-red-200 text-center shadow-2xl">
@@ -468,7 +464,6 @@ export default function Settings() {
         </div>
       )}
 
-      {/* Error Message (Toast style) */}
       {errorMessage && (
         <div className="fixed bottom-4 right-4 z-[100] animate-in slide-in-from-right duration-300">
           <div className="bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">

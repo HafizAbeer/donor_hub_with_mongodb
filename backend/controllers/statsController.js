@@ -2,14 +2,10 @@ import User from '../models/User.js';
 import Donation from '../models/Donation.js';
 import BloodRequest from '../models/BloodRequest.js';
 
-// @desc    Get Admin Dashboard Stats
-// @route   GET /api/stats/admin
-// @access  Private/Admin
 const getAdminStats = async (req, res) => {
     try {
         const totalDonors = await User.countDocuments({ role: 'user' });
 
-        // Active Donors (donated in last 12 months)
         const twelveMonthsAgo = new Date();
         twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
         const activeDonors = await User.countDocuments({
@@ -17,7 +13,6 @@ const getAdminStats = async (req, res) => {
             lastDonationDate: { $gte: twelveMonthsAgo }
         });
 
-        // New This Month
         const startOfMonth = new Date();
         startOfMonth.setHours(0, 0, 0, 0);
         startOfMonth.setDate(1);
@@ -37,7 +32,6 @@ const getAdminStats = async (req, res) => {
             lastDonationDate: { $gte: startOfMonth }
         });
 
-        // Blood Group Distribution
         const bloodGroups = await User.aggregate([
             { $match: { role: 'user' } },
             { $group: { _id: '$bloodGroup', count: { $sum: 1 } } }
@@ -48,7 +42,6 @@ const getAdminStats = async (req, res) => {
             value: bg.count
         }));
 
-        // Monthly Trend (Last 6 Months)
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
         sixMonthsAgo.setDate(1);
@@ -82,7 +75,6 @@ const getAdminStats = async (req, res) => {
             { $sort: { '_id.year': 1, '_id.month': 1 } }
         ]);
 
-        // Merge Trends
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const monthlyTrend = [];
         for (let i = 5; i >= 0; i--) {
@@ -102,7 +94,6 @@ const getAdminStats = async (req, res) => {
             });
         }
 
-        // Recent Donations
         const recentDonations = await Donation.find()
             .populate('donor', 'name')
             .sort({ date: -1 })
@@ -114,7 +105,7 @@ const getAdminStats = async (req, res) => {
             donorId: d.donor ? d.donor._id : null,
             bloodGroup: d.bloodGroup,
             location: d.location,
-            date: d.date, // Keep raw date for input fields
+            date: d.date,
             dateDisplay: new Date(d.date).toLocaleDateString(),
             notes: d.notes || '',
         }));
@@ -137,9 +128,6 @@ const getAdminStats = async (req, res) => {
     }
 };
 
-// @desc    Get SuperAdmin Dashboard Stats
-// @route   GET /api/stats/superadmin
-// @access  Private/SuperAdmin
 const getSuperAdminStats = async (req, res) => {
     try {
         const totalUsers = await User.countDocuments({ role: 'user' });
@@ -154,7 +142,6 @@ const getSuperAdminStats = async (req, res) => {
 
         const totalDonations = await Donation.countDocuments();
 
-        // Blood Group Distribution (All Users)
         const bloodGroups = await User.aggregate([
             { $group: { _id: '$bloodGroup', count: { $sum: 1 } } }
         ]);
@@ -164,22 +151,18 @@ const getSuperAdminStats = async (req, res) => {
             value: bg.count
         }));
 
-        // Top Cities
         const cityStats = await User.aggregate([
             { $group: { _id: '$city', donors: { $sum: 1 } } },
             { $sort: { donors: -1 } },
             { $limit: 10 }
         ]);
 
-        // Get donations per city (this requires joining or calculating separately)
-        // For simplicity, we'll just show donor counts for now or placeholder for donations
         const cityData = cityStats.map(c => ({
             city: c._id,
             donors: c.donors,
-            donations: Math.floor(c.donors * 1.5) // Simulation for now
+            donations: Math.floor(c.donors * 1.5)
         }));
 
-        // Recent Activities (Mix of Users & Donations)
         const users = await User.find().sort({ createdAt: -1 }).limit(5);
         const donations = await Donation.find().populate('donor', 'name').sort({ createdAt: -1 }).limit(5);
 
@@ -190,7 +173,6 @@ const getSuperAdminStats = async (req, res) => {
                 action: 'New user registered',
                 user: u.name,
                 time: new Date(u.createdAt).toLocaleString(),
-                // User details for potential management
                 email: u.email,
                 role: u.role,
                 phone: u.phone
@@ -200,7 +182,7 @@ const getSuperAdminStats = async (req, res) => {
                 type: 'donation',
                 action: 'New donation recorded',
                 user: d.donor ? d.donor.name : 'Unknown',
-                donor: d.donor ? d.donor.name : 'Unknown', // for DonationModals compatibility
+                donor: d.donor ? d.donor.name : 'Unknown',
                 donorId: d.donor ? d.donor._id : null,
                 bloodGroup: d.bloodGroup,
                 location: d.location,
@@ -211,7 +193,6 @@ const getSuperAdminStats = async (req, res) => {
             }))
         ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 10);
 
-        // Donation trends (Monthly)
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
         sixMonthsAgo.setDate(1);

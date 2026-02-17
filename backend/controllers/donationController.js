@@ -1,9 +1,5 @@
 import Donation from '../models/Donation.js';
 import User from '../models/User.js';
-
-// @desc    Get donations for logged in user
-// @route   GET /api/donations/my
-// @access  Private
 const getMyDonations = async (req, res) => {
     try {
         const donations = await Donation.find({ donor: req.user._id }).sort({ date: -1 });
@@ -13,9 +9,6 @@ const getMyDonations = async (req, res) => {
     }
 };
 
-// @desc    Create a new donation record
-// @route   POST /api/donations
-// @access  Private
 const createDonation = async (req, res) => {
     const { donor, date, location, bloodGroup, notes } = req.body;
 
@@ -34,7 +27,6 @@ const createDonation = async (req, res) => {
 
         const createdDonation = await donation.save();
 
-        // Optional: Update user's lastDonationDate and donation count
         const donorUser = await User.findById(donorId);
         if (donorUser) {
             donorUser.lastDonationDate = createdDonation.date;
@@ -48,9 +40,6 @@ const createDonation = async (req, res) => {
     }
 };
 
-// @desc    Update donation
-// @route   PUT /api/donations/:id
-// @access  Private
 const updateDonation = async (req, res) => {
     const { date, location, bloodGroup, notes } = req.body;
 
@@ -77,9 +66,6 @@ const updateDonation = async (req, res) => {
     }
 };
 
-// @desc    Delete donation
-// @route   DELETE /api/donations/:id
-// @access  Private
 const deleteDonation = async (req, res) => {
     try {
         const donation = await Donation.findById(req.params.id);
@@ -91,7 +77,6 @@ const deleteDonation = async (req, res) => {
 
             await donation.deleteOne();
 
-            // Optional: Decrease donation count for user
             const donorUser = await User.findById(donation.donor);
             if (donorUser && donorUser.donations > 0) {
                 donorUser.donations -= 1;

@@ -1,8 +1,5 @@
 import Event from '../models/Event.js';
 
-// @desc    Get all upcoming events
-// @route   GET /api/events
-// @access  Public
 const getEvents = async (req, res) => {
     try {
         const today = new Date();
@@ -14,9 +11,6 @@ const getEvents = async (req, res) => {
     }
 };
 
-// @desc    Create a new event
-// @route   POST /api/events
-// @access  Private/Admin
 const createEvent = async (req, res) => {
     const { title, description, date, location } = req.body;
 
@@ -36,9 +30,6 @@ const createEvent = async (req, res) => {
     }
 };
 
-// @desc    Update an event
-// @route   PUT /api/events/:id
-// @access  Private/Admin
 const updateEvent = async (req, res) => {
     const { title, description, date, location } = req.body;
 
@@ -61,9 +52,6 @@ const updateEvent = async (req, res) => {
     }
 };
 
-// @desc    Delete an event
-// @route   DELETE /api/events/:id
-// @access  Private/Admin
 const deleteEvent = async (req, res) => {
     try {
         const event = await Event.findById(req.params.id);

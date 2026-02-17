@@ -3,16 +3,12 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import sendEmail from '../utils/sendEmail.js';
 
-// Generate JWT Token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '30d',
     });
 };
 
-// @desc    Register a new user
-// @route   POST /api/auth/signup
-// @access  Public
 const registerUser = async (req, res) => {
     const { name, email, password, phone, bloodGroup, city, address, role, province, gender, dateOfBirth, hostelite } = req.body;
 
@@ -23,7 +19,6 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Generate 6-digit verification code
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
         const user = await User.create({
@@ -44,7 +39,6 @@ const registerUser = async (req, res) => {
         });
 
         if (user) {
-            // Send verification email
             const message = `Your verification code is: ${verificationCode}`;
             try {
                 await sendEmail({
@@ -54,7 +48,6 @@ const registerUser = async (req, res) => {
                 });
             } catch (emailError) {
                 console.error("Email send failed:", emailError);
-                // We still create the user, but they might need to resend code
             }
 
             res.status(201).json({
@@ -72,9 +65,6 @@ const registerUser = async (req, res) => {
     }
 };
 
-// @desc    Auth user & get token
-// @route   POST /api/auth/login
-// @access  Public
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
@@ -88,12 +78,9 @@ const loginUser = async (req, res) => {
             console.log("Is Verified:", user.isVerified);
 
             if (!user.isVerified) {
-                // Generate new verification code
                 const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
                 user.verificationCode = verificationCode;
                 await user.save();
-
-                // Send email
                 const message = `Your verification code is: ${verificationCode}`;
                 try {
                     await sendEmail({
@@ -127,9 +114,6 @@ const loginUser = async (req, res) => {
     }
 };
 
-// @desc    Verify user email
-// @route   POST /api/auth/verify
-// @access  Public
 const verifyEmail = async (req, res) => {
     const { email, code } = req.body;
 
@@ -146,7 +130,7 @@ const verifyEmail = async (req, res) => {
 
         if (user.verificationCode === code) {
             user.isVerified = true;
-            user.verificationCode = undefined; // Clear code
+            user.verificationCode = undefined;
             await user.save();
 
             res.json({
@@ -165,9 +149,6 @@ const verifyEmail = async (req, res) => {
     }
 };
 
-// @desc    Resend verification code
-// @route   POST /api/auth/resend
-// @access  Public
 const resendCode = async (req, res) => {
     const { email } = req.body;
 
@@ -202,9 +183,6 @@ const resendCode = async (req, res) => {
     }
 };
 
-// @desc    Get user profile
-// @route   GET /api/auth/me
-// @access  Private
 const getMe = async (req, res) => {
     const user = await User.findById(req.user._id);
 
@@ -230,9 +208,6 @@ const getMe = async (req, res) => {
     }
 };
 
-// @desc    Forgot password
-// @route   POST /api/auth/forgot-password
-// @access  Public
 const forgotPassword = async (req, res) => {
     const { email } = req.body;
 
@@ -243,10 +218,8 @@ const forgotPassword = async (req, res) => {
             return res.status(404).json({ message: 'User with this email does not exist' });
         }
 
-        // Generate 6-digit reset code
         const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // Set reset token and expiry (15 minutes)
         user.resetPasswordToken = resetCode;
         user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
 
@@ -272,9 +245,6 @@ const forgotPassword = async (req, res) => {
     }
 };
 
-// @desc    Reset password
-// @route   POST /api/auth/reset-password
-// @access  Public
 const resetPassword = async (req, res) => {
     const { email, code, password } = req.body;
 
@@ -289,7 +259,6 @@ const resetPassword = async (req, res) => {
             return res.status(400).json({ message: 'Invalid or expired reset code' });
         }
 
-        // Set new password
         user.password = password;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
@@ -302,9 +271,6 @@ const resetPassword = async (req, res) => {
     }
 };
 
-// @desc    Change password
-// @route   PUT /api/auth/change-password
-// @access  Private
 const changePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
 

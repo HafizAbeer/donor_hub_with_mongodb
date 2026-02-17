@@ -57,7 +57,6 @@ export default function AdminDashboard() {
     recentDonations: []
   });
 
-  // Modal States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [donationToEdit, setDonationToEdit] = useState(null);

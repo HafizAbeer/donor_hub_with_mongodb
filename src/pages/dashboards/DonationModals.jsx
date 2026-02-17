@@ -26,7 +26,6 @@ export default function DonationModals({
         notes: ""
     });
 
-    // Reset form when modal opens
     useEffect(() => {
         if (isEditModalOpen && donationToEdit) {
             setEditForm({
@@ -56,7 +55,7 @@ export default function DonationModals({
 
             if (res.ok) {
                 setSuccessMessage("Donation record updated successfully.");
-                setIsEditModalOpen(false); // Close edit modal first
+                setIsEditModalOpen(false);
                 setShowSuccess(true);
                 if (onSuccess) onSuccess();
                 setTimeout(() => {
@@ -89,7 +88,7 @@ export default function DonationModals({
 
             if (res.ok) {
                 setSuccessMessage("Donation record deleted successfully.");
-                setIsDeleteModalOpen(false); // Close delete modal first
+                setIsDeleteModalOpen(false);
                 setShowSuccess(true);
                 if (onSuccess) onSuccess();
                 setTimeout(() => {
@@ -109,7 +108,6 @@ export default function DonationModals({
 
     return (
         <>
-            {/* Edit Donation Modal */}
             <Transition appear show={isEditModalOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-50" onClose={() => !isSubmitting && setIsEditModalOpen(false)}>
                     <Transition.Child
@@ -213,7 +211,6 @@ export default function DonationModals({
                 </Dialog>
             </Transition>
 
-            {/* Delete Confirmation Modal */}
             <Transition appear show={isDeleteModalOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-50" onClose={() => !isSubmitting && setIsDeleteModalOpen(false)}>
                     <Transition.Child
@@ -277,7 +274,6 @@ export default function DonationModals({
                 </Dialog>
             </Transition>
 
-            {/* Success Success Popover */}
             <Transition appear show={showSuccess} as={Fragment}>
                 <Dialog as="div" className="relative z-[60]" onClose={() => setShowSuccess(false)}>
                     <Transition.Child

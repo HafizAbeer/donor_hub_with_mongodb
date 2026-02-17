@@ -24,7 +24,6 @@ export default function EventsManager() {
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Modals state
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -238,7 +237,6 @@ export default function EventsManager() {
                 )}
             </div>
 
-            {/* Form Modal (Add/Edit) */}
             <Transition appear show={isFormModalOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-50" onClose={() => !isSubmitting && setIsFormModalOpen(false)}>
                     <Transition.Child
@@ -384,7 +382,6 @@ export default function EventsManager() {
                 </Dialog>
             </Transition>
 
-            {/* Delete Confirmation Modal */}
             <Transition appear show={isDeleteModalOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-50" onClose={() => !isSubmitting && setIsDeleteModalOpen(false)}>
                     <Transition.Child

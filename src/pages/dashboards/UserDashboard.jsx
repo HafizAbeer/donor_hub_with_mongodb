@@ -56,25 +56,21 @@ export default function UserDashboard() {
 
 
 
-  // Calculate stats and charts from real data
   const userDonations = myDonations.length;
   const pointsEarned = userDonations * 50;
 
-  // Calculate change for donations (e.g., this month)
   const now = new Date();
   const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const donationsThisMonth = myDonations.filter(d => new Date(d.date) >= firstDayOfMonth).length;
 
-  // Calculate Days Until Next Donation
   let daysUntilNext = "N/A";
   let statusChange = "Ready";
 
   if (myDonations.length > 0) {
-    // Sort donations by date descending to get the latest
     const sortedDonations = [...myDonations].sort((a, b) => new Date(b.date) - new Date(a.date));
     const lastDonation = new Date(sortedDonations[0].date);
     const nextDonationDate = new Date(lastDonation);
-    nextDonationDate.setDate(lastDonation.getDate() + 90); // 90 days waiting period
+    nextDonationDate.setDate(lastDonation.getDate() + 90);
 
     const diffTime = nextDonationDate - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -118,19 +114,14 @@ export default function UserDashboard() {
     },
   ];
 
-  // Process myDonations for Charts
-  // 1. Donation History (Donations in last 6 months)
   const processDonationHistory = () => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const history = [];
     const now = new Date();
-
-    // Create last 6 months range
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthLabel = `${months[d.getMonth()]} ${d.getFullYear()}`;
 
-      // Count donations for this specific month/year
       const count = myDonations.filter(donation => {
         const donDate = new Date(donation.date);
         return donDate.getMonth() === d.getMonth() && donDate.getFullYear() === d.getFullYear();
@@ -144,9 +135,7 @@ export default function UserDashboard() {
 
   const donationHistory = processDonationHistory();
 
-  // 2. Points Progress (Cumulative points)
   const processPointsHistory = () => {
-    // Sort by date ascending
     const sorted = [...myDonations].sort((a, b) => new Date(a.date) - new Date(b.date));
     let cumulativePoints = 0;
 
@@ -160,7 +149,6 @@ export default function UserDashboard() {
       };
     });
 
-    // Return waiting data or empty standard structure if no data
     if (data.length === 0) {
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
       return months.map(m => ({ month: m, points: 0 }));
@@ -190,8 +178,8 @@ export default function UserDashboard() {
         const data = await res.json();
         setMyDonations(data.map(d => ({
           id: d._id,
-          date: d.date, // for display
-          rawDate: d.date, // for editing
+          date: d.date,
+          rawDate: d.date,
           bloodGroup: d.bloodGroup,
           location: d.location,
           points: 50,
@@ -211,7 +199,6 @@ export default function UserDashboard() {
       const res = await fetch('/api/events');
       if (res.ok) {
         const data = await res.json();
-        // Get only top 3 upcoming events
         setEvents(data.slice(0, 3));
       }
     } catch (err) {
@@ -225,10 +212,9 @@ export default function UserDashboard() {
     e.preventDefault();
     if (!token) return;
 
-    // Future date validation
     const selectedDate = new Date(donationForm.date);
     const today = new Date();
-    today.setHours(23, 59, 59, 999); // Allow today
+    today.setHours(23, 59, 59, 999);
 
     if (selectedDate > today) {
       setErrorMessage("Donation date cannot be in the future!");
@@ -263,8 +249,6 @@ export default function UserDashboard() {
         setEditingDonation(null);
         fetchDonations();
 
-        // Don't auto-close if it's a new record, let user choose "Add Another" or "Close"
-        // If it was an edit, we can auto-close
         if (editingDonation) {
           setTimeout(() => {
             setIsDonationModalOpen(false);
@@ -330,10 +314,8 @@ export default function UserDashboard() {
         setShowSuccess(true);
         fetchDonations();
 
-        // Close delete modal first
         setIsDeleteModalOpen(false);
 
-        // Show success for 2 seconds then reset
         setTimeout(() => {
           setShowSuccess(false);
           setDonationToDelete(null);
@@ -703,7 +685,6 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <Card className="w-full max-w-md p-6 bg-white dark:bg-red-950 border-red-200 dark:border-red-900 relative">

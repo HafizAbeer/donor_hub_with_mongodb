@@ -22,7 +22,7 @@ export default function OTPVerification() {
     if (location.state?.email) {
       setEmail(location.state.email);
     } else {
-      // If no email in state, redirect to login or signup
+
       navigate("/login");
     }
   }, [location, navigate]);
@@ -33,11 +33,11 @@ export default function OTPVerification() {
     if (isNaN(value)) return;
 
     const newOtp = [...otp];
-    // Allow only one digit
+
     newOtp[index] = value.substring(value.length - 1);
     setOtp(newOtp);
 
-    // Move to next input if value is entered
+
     if (value && index < 5 && inputs.current[index + 1]) {
       inputs.current[index + 1].focus();
     }

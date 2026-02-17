@@ -28,7 +28,6 @@ export default function UserProfile() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Initialize form data from user, with fallbacks
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -39,7 +38,6 @@ export default function UserProfile() {
     city: '',
   });
 
-  // Update form data when user changes
   useEffect(() => {
     if (user) {
       setFormData({
@@ -117,7 +115,6 @@ export default function UserProfile() {
 
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
-  // Calculate dynamic stats
   const totalDonations = myDonations.length;
   const pointsEarned = totalDonations * 50;
 
@@ -135,7 +132,6 @@ export default function UserProfile() {
     return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
   };
 
-  // Process data for chart (Last 6 months)
   const getChartData = () => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const history = [];
@@ -496,7 +492,6 @@ export default function UserProfile() {
         </div>
       </div>
 
-      {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
           <Card className="w-full max-w-sm p-8 bg-white dark:bg-red-950 border-red-200 text-center shadow-2xl">
@@ -509,7 +504,6 @@ export default function UserProfile() {
         </div>
       )}
 
-      {/* Error Message (Toast style) */}
       {errorMessage && (
         <div className="fixed bottom-4 right-4 z-[100] animate-in slide-in-from-right duration-300">
           <div className="bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">

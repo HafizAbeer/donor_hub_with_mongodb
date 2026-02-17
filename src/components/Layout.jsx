@@ -150,7 +150,6 @@ export default function Layout({ children }) {
   const { user, isLoading } = useAuth();
   const location = useLocation();
 
-  // Show loading state while user is being loaded
   if (isLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-red-50 dark:from-red-950 dark:via-pink-950 dark:to-red-950">
@@ -162,7 +161,6 @@ export default function Layout({ children }) {
     );
   }
 
-  // Get page title based on current route
   const getPageTitle = () => {
     const path = location.pathname;
 

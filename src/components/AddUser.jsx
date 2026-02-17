@@ -137,7 +137,6 @@ export default function AddUser() {
 
       <Card className="p-4 md:p-8 bg-white/80 dark:bg-red-950/50 backdrop-blur-sm border-red-200 dark:border-red-900 shadow-xl rounded-2xl">
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-red-900 dark:text-red-100 flex items-center gap-2 border-b border-red-100 dark:border-red-900 pb-2">
               <User className="w-5 h-5 text-red-600" />
@@ -191,10 +190,10 @@ export default function AddUser() {
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-red-300">
                     <CheckCircle className={`w-4 h-4 ${formData.password.length >= 8 &&
-                        /[A-Z]/.test(formData.password) &&
-                        /\d/.test(formData.password) &&
-                        /[@$!%*?&]/.test(formData.password)
-                        ? 'text-green-500' : 'opacity-20'
+                      /[A-Z]/.test(formData.password) &&
+                      /\d/.test(formData.password) &&
+                      /[@$!%*?&]/.test(formData.password)
+                      ? 'text-green-500' : 'opacity-20'
                       }`} />
                   </div>
                 </div>
@@ -241,7 +240,6 @@ export default function AddUser() {
             </div>
           </div>
 
-          {/* Demographic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-red-900 dark:text-red-100 flex items-center gap-2 border-b border-red-100 dark:border-red-900 pb-2">
               <MapPin className="w-5 h-5 text-red-600" />
@@ -359,7 +357,6 @@ export default function AddUser() {
             </div>
           </div>
 
-          {/* Medical Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-red-900 dark:text-red-100 flex items-center gap-2 border-b border-red-100 dark:border-red-900 pb-2">
               <Heart className="w-5 h-5 text-red-600" />
@@ -404,7 +401,6 @@ export default function AddUser() {
             </div>
           </div>
 
-          {/* Emergency Contact */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-red-900 dark:text-red-100 flex items-center gap-2 border-b border-red-100 dark:border-red-900 pb-2">
               <Phone className="w-5 h-5 text-red-600" />
@@ -472,7 +468,6 @@ export default function AddUser() {
         </form>
       </Card>
 
-      {/* Success Modal */}
       <Transition appear show={showSuccess} as={Fragment}>
         <Dialog as="div" className="relative z-[100]" onClose={() => { }}>
           <Transition.Child

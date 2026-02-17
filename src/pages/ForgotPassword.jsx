@@ -32,7 +32,6 @@ export default function ForgotPassword() {
 
       if (res.ok) {
         setMessage(data.message);
-        // Store email for ResetPassword page
         localStorage.setItem("reset_email", email);
         setTimeout(() => {
           navigate("/reset-password");
