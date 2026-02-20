@@ -160,7 +160,7 @@ const updateUser = async (req, res) => {
             user.permissions = req.body.permissions || user.permissions;
 
             if (req.user.role === 'superadmin' && req.body.addedBy !== undefined) {
-                user.addedBy = req.body.addedBy;
+                user.addedBy = req.body.addedBy === "" ? null : req.body.addedBy;
             }
 
             if (req.user.role === 'superadmin' && req.body.role) {

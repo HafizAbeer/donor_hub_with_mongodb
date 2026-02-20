@@ -356,6 +356,7 @@ export default function DonorsList() {
         },
         body: JSON.stringify({
           ...editForm,
+          addedBy: editForm.addedBy === "" ? null : editForm.addedBy,
           phone: `+92${editForm.phone}`,
           emergencyPhone: editForm.emergencyPhone ? `+92${editForm.emergencyPhone}` : '',
           university: finalUniversity,
