@@ -1,6 +1,7 @@
 import BloodRequest from '../models/BloodRequest.js';
 import User from '../models/User.js';
 import sendEmail from '../utils/sendEmail.js';
+import mongoose from 'mongoose';
 
 const getRequests = async (req, res) => {
     try {
@@ -85,7 +86,11 @@ const createRequest = async (req, res) => {
 };
 
 const updateRequest = async (req, res) => {
+    console.log('updateRequest hit with ID:', req.params.id);
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid ID format' });
+        }
         const request = await BloodRequest.findById(req.params.id);
 
         if (request) {
@@ -114,7 +119,11 @@ const updateRequest = async (req, res) => {
 };
 
 const deleteRequest = async (req, res) => {
+    console.log('deleteRequest hit with ID:', req.params.id);
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid ID format' });
+        }
         const request = await BloodRequest.findById(req.params.id);
 
         if (request) {
@@ -134,6 +143,7 @@ const deleteRequest = async (req, res) => {
 };
 
 const deleteAllRequests = async (req, res) => {
+    console.log('deleteAllRequests hit');
     try {
         if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
             return res.status(401).json({ message: 'Not authorized' });

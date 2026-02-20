@@ -4,7 +4,7 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.delete('/bulk', protect, deleteAllRequests);
+router.delete('/action/bulk-delete', protect, deleteAllRequests);
 
 router.route('/')
     .get(protect, getRequests)

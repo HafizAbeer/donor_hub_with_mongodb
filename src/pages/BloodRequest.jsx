@@ -346,7 +346,7 @@ export default function BloodRequest() {
     const handleBulkDeleteConfirm = async () => {
         try {
             setIsSubmitting(true);
-            const res = await fetch('/api/requests/bulk', {
+            const res = await fetch('/api/requests/action/bulk-delete', {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -361,12 +361,15 @@ export default function BloodRequest() {
                 setTimeout(() => setIsSuccessModalOpen(false), 2000);
             } else {
                 const data = await res.json();
+                console.error("Bulk delete error response:", data);
                 setErrorMessage(data.message || "Failed to delete all requests");
                 setIsErrorModalOpen(true);
                 setIsBulkDeleteModalOpen(false);
             }
         } catch (error) {
-            console.error("Failed to clear all", error);
+            console.error("Failed to clear all - unexpected error:", error);
+            setErrorMessage("An unexpected network error occurred.");
+            setIsErrorModalOpen(true);
         } finally {
             setIsSubmitting(false);
         }
