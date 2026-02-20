@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,11 @@ import {
   Filter,
   Edit2,
   Trash2,
+  X,
+  UserCheck,
+  AlertCircle,
 } from "lucide-react";
+import { Dialog, Transition } from "@headlessui/react";
 import DonationModals from "./DonationModals";
 import {
   BarChart,
@@ -49,7 +53,9 @@ export default function SuperAdminDashboard() {
     bloodGroupData: [],
     cityData: [],
     recentActivities: [],
-    donationData: []
+    donationData: [],
+    universityData: [],
+    unassignedDonors: []
   });
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -79,6 +85,9 @@ export default function SuperAdminDashboard() {
     }
   };
 
+  const [selectedUniversity, setSelectedUniversity] = useState(null);
+  const [isUniversityModalOpen, setIsUniversityModalOpen] = useState(false);
+
   const openEditModal = (donation) => {
     setDonationToEdit(donation);
     setIsEditModalOpen(true);
@@ -87,6 +96,11 @@ export default function SuperAdminDashboard() {
   const openDeleteModal = (donation) => {
     setDonationToDelete(donation);
     setIsDeleteModalOpen(true);
+  };
+
+  const openUniversityModal = (uni) => {
+    setSelectedUniversity(uni);
+    setIsUniversityModalOpen(true);
   };
 
   const statCards = [
@@ -158,7 +172,7 @@ export default function SuperAdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat) => (
+        {(statCards || []).map((stat) => (
           <Card
             key={stat.title}
             className="p-4 md:p-6 bg-white/80 dark:bg-red-950/50 backdrop-blur-sm border-red-200 dark:border-red-900 hover:shadow-lg transition-shadow"
@@ -192,7 +206,7 @@ export default function SuperAdminDashboard() {
             <Filter className="w-4 h-4 text-red-600" />
           </div>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data.donationData}>
+            <LineChart data={data.donationData || []}>
               <CartesianGrid strokeDasharray="3 3" stroke="#fecdd3" />
               <XAxis dataKey="month" stroke="#991b1b" />
               <YAxis stroke="#991b1b" />
@@ -240,7 +254,7 @@ export default function SuperAdminDashboard() {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {data.bloodGroupData.map((entry, index) => (
+                {(data.bloodGroupData || []).map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}
@@ -265,15 +279,24 @@ export default function SuperAdminDashboard() {
             <MapPin className="w-5 h-5 text-red-600" />
             Top Cities
           </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.cityData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#fecdd3" />
-              <XAxis type="number" stroke="#991b1b" />
-              <YAxis
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart
+              data={data.cityData || []}
+              margin={{ top: 20, right: 30, left: 20, bottom: 100 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#fecdd3" vertical={false} />
+              <XAxis
                 dataKey="city"
-                type="category"
-                width={80}
                 stroke="#991b1b"
+                fontSize={11}
+                interval={0}
+                angle={-90}
+                textAnchor="end"
+                height={100}
+              />
+              <YAxis
+                stroke="#991b1b"
+                fontSize={11}
               />
               <Tooltip
                 contentStyle={{
@@ -282,32 +305,194 @@ export default function SuperAdminDashboard() {
                   borderRadius: "8px",
                 }}
               />
-              <Legend />
+              <Legend verticalAlign="top" height={36} />
               <Bar
                 dataKey="donors"
                 fill="#ef4444"
                 name="Donors"
-                radius={[0, 8, 8, 0]}
+                radius={[4, 4, 0, 0]}
               />
               <Bar
                 dataKey="donations"
                 fill="#ec4899"
                 name="Donations"
-                radius={[0, 8, 8, 0]}
+                radius={[4, 4, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>
         </Card>
 
         <Card className="p-4 md:p-6 bg-white/80 dark:bg-red-950/50 backdrop-blur-sm border-red-200 dark:border-red-900">
+          <h3 className="text-lg md:text-xl font-semibold text-red-900 dark:text-red-100 mb-4 flex items-center gap-2">
+            <Shield className="w-5 h-5 text-red-600" />
+            Donors by University
+          </h3>
+          <div className="space-y-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={data.universityData || []}
+                layout="vertical"
+                onClick={(d) => d && d.activePayload && openUniversityModal(d.activePayload[0].payload)}
+                style={{ cursor: 'pointer' }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#fecdd3" />
+                <XAxis type="number" stroke="#991b1b" />
+                <YAxis
+                  dataKey="university"
+                  type="category"
+                  width={100}
+                  stroke="#991b1b"
+                  fontSize={12}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#fff",
+                    border: "1px solid #fecdd3",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Bar
+                  dataKey="donors"
+                  fill="#ec4899"
+                  name="Donors"
+                  radius={[0, 8, 8, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-red-200 dark:divide-red-800">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-red-900 dark:text-red-100 uppercase tracking-wider">University</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-red-900 dark:text-red-100 uppercase tracking-wider">Count</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-red-900 dark:text-red-100 uppercase tracking-wider">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-red-100 dark:divide-red-900">
+                  {(data.universityData || []).map((uni) => (
+                    <tr key={uni.university} className="hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-red-900 dark:text-red-100">{uni.university}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-red-700 dark:text-red-300">{uni.donors}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/40"
+                          onClick={() => openUniversityModal(uni)}
+                        >
+                          View List
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Card>
+
+        {/* University Donors Modal */}
+        <Transition show={isUniversityModalOpen} as={Fragment}>
+          <Dialog
+            as="div"
+            className="fixed inset-0 z-50 overflow-y-auto"
+            onClose={() => setIsUniversityModalOpen(false)}
+          >
+            <div className="min-h-screen px-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Dialog.Overlay className="fixed inset-0 bg-red-900/20 backdrop-blur-sm transition-opacity" />
+              </Transition.Child>
+
+              <span className="inline-block h-screen align-middle" aria-hidden="true">&#8203;</span>
+
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <div className="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-red-950 border border-red-200 dark:border-red-900 shadow-xl rounded-2xl">
+                  <div className="flex justify-between items-center mb-6">
+                    <Dialog.Title as="h3" className="text-xl font-bold text-red-900 dark:text-red-100">
+                      Donors at {selectedUniversity?.university}
+                    </Dialog.Title>
+                    <button
+                      onClick={() => setIsUniversityModalOpen(false)}
+                      className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="overflow-x-auto max-h-[60vh]">
+                    <table className="min-w-full divide-y divide-red-200 dark:divide-red-800">
+                      <thead className="sticky top-0 bg-white dark:bg-red-950 z-10">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-red-900 dark:text-red-100 uppercase tracking-wider">Donor Name</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-red-900 dark:text-red-100 uppercase tracking-wider">Blood Group</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-red-900 dark:text-red-100 uppercase tracking-wider">Phone</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-red-100 dark:divide-red-900">
+                        {selectedUniversity?.donorDetails?.map((donor, idx) => (
+                          <tr key={idx} className="hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                            <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-red-900 dark:text-red-100">{donor.name}</td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm">
+                              <span className="px-2 py-1 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded text-xs font-bold ring-1 ring-red-200 dark:ring-red-800">
+                                {donor.bloodGroup}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-red-700 dark:text-red-300">
+                              <a href={`tel:${donor.phone}`} className="hover:underline text-red-600 dark:text-red-400">
+                                {donor.phone}
+                              </a>
+                            </td>
+                          </tr>
+                        ))}
+                        {(!selectedUniversity?.donorDetails || selectedUniversity.donorDetails.length === 0) && (
+                          <tr>
+                            <td colSpan="3" className="px-4 py-8 text-center text-red-500 italic">No donor details available</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="mt-8 flex justify-end">
+                    <Button
+                      onClick={() => setIsUniversityModalOpen(false)}
+                      className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6"
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </div>
+              </Transition.Child>
+            </div>
+          </Dialog>
+        </Transition>
+
+        <Card className="p-4 md:p-6 bg-white/80 dark:bg-red-950/50 backdrop-blur-sm border-red-200 dark:border-red-900">
           <h3 className="text-lg md:text-xl font-semibold text-red-900 dark:text-red-100 mb-4">
             Recent Activities
           </h3>
           <div className="space-y-3 max-h-[300px] overflow-y-auto">
-            {data.recentActivities.length === 0 ? (
+            {(!data.recentActivities || data.recentActivities.length === 0) ? (
               <p className="text-center text-red-500 py-4">No recent activity</p>
             ) : (
-              data.recentActivities.map((activity) => (
+              (data.recentActivities || []).map((activity) => (
                 <div
                   key={activity.id}
                   className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-900/30 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
@@ -355,6 +540,43 @@ export default function SuperAdminDashboard() {
           </div>
         </Card>
       </div>
+
+      {data.unassignedDonors && data.unassignedDonors.length > 0 && (
+        <Card className="p-4 md:p-6 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900 animate-in fade-in slide-in-from-top duration-500">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg md:text-xl font-semibold text-amber-900 dark:text-amber-100 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-amber-600" />
+              Pending Assignments ({data.unassignedDonors.length})
+            </h3>
+            <Link to="/donors">
+              <Button variant="ghost" size="sm" className="text-amber-700 hover:text-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/40">
+                View All
+              </Button>
+            </Link>
+          </div>
+          <p className="text-sm text-amber-700 dark:text-amber-300 mb-4">
+            These donors signed up without providing a university. Please assign them to a university or administrator.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {data.unassignedDonors.slice(0, 6).map((donor) => (
+              <Card key={donor._id} className="p-3 bg-white dark:bg-amber-900/10 border-amber-200 dark:border-amber-900 shadow-sm">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-semibold text-amber-900 dark:text-amber-100">{donor.name}</p>
+                    <p className="text-xs text-amber-700 dark:text-amber-400">{donor.email}</p>
+                    <p className="text-xs text-amber-600 mt-1">{donor.city}</p>
+                  </div>
+                  <Link to="/donors">
+                    <Button size="sm" variant="outline" className="h-8 border-amber-300 text-amber-700 hover:bg-amber-50">
+                      Assign
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-4 md:p-6 bg-gradient-to-br from-red-500 to-pink-500 text-white">

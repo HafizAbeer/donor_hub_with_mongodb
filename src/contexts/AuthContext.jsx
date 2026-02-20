@@ -82,6 +82,8 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+
+
   const login = async (email, password) => {
     try {
       const res = await apiFetch('/api/auth/login', {
@@ -205,6 +207,35 @@ export const AuthProvider = ({ children }) => {
       }
     }
   };
+
+  useEffect(() => {
+    let inactivityTimer;
+
+    const resetTimer = () => {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      if (isAuthenticated) {
+        inactivityTimer = setTimeout(() => {
+          console.log("Session expired due to inactivity");
+          logout();
+        }, 5 * 60 * 1000); // 5 minutes
+      }
+    };
+
+    const handleActivity = () => {
+      resetTimer();
+    };
+
+    if (isAuthenticated) {
+      const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+      events.forEach(event => document.addEventListener(event, handleActivity));
+      resetTimer();
+
+      return () => {
+        if (inactivityTimer) clearTimeout(inactivityTimer);
+        events.forEach(event => document.removeEventListener(event, handleActivity));
+      };
+    }
+  }, [isAuthenticated]);
 
   return (
     <AuthContext.Provider value={{

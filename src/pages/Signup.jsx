@@ -12,15 +12,13 @@ export default function Signup() {
   const navigate = useNavigate();
   const { signup } = useAuth();
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    bloodGroup: "",
-    city: "",
     address: "",
     hostelite: false,
+    university: "",
+    department: "",
     password: "",
     confirmPassword: "",
+    cnic: "",
   });
   const [error, setError] = useState("");
 
@@ -55,6 +53,9 @@ export default function Signup() {
         city: formData.city,
         address: formData.address,
         hostelite: formData.hostelite === "true" || formData.hostelite === true,
+        university: formData.university,
+        department: formData.department,
+        cnic: formData.cnic,
         role: "user",
       };
 
@@ -170,18 +171,58 @@ export default function Signup() {
               />
             </div>
             <div>
-              <Label htmlFor="hostelite" className="text-white">Residency Status</Label>
-              <select
-                id="hostelite"
-                name="hostelite"
-                value={formData.hostelite}
+              <Label htmlFor="cnic" className="text-white">CNIC (Optional)</Label>
+              <Input
+                type="text"
+                id="cnic"
+                name="cnic"
+                value={formData.cnic}
                 onChange={handleChange}
-                className="mt-1 w-full px-3 py-2 bg-white/20 text-white border border-red-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-400"
-                required
-              >
-                <option value={false} className="text-black">Non-Hostelite</option>
-                <option value={true} className="text-black">Hostelite</option>
-              </select>
+                placeholder="35201-XXXXXXX-X"
+                className="mt-1 bg-white/20 text-white placeholder-white/70 border-red-300 focus:ring-red-400"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="hostelite" className="text-white">Residency Status</Label>
+            <select
+              id="hostelite"
+              name="hostelite"
+              value={formData.hostelite}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 bg-white/20 text-white border border-red-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-400"
+              required
+            >
+              <option value={false} className="text-black">Non-Hostelite</option>
+              <option value={true} className="text-black">Hostelite</option>
+            </select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="university" className="text-white">University (Optional)</Label>
+              <Input
+                type="text"
+                id="university"
+                name="university"
+                value={formData.university}
+                onChange={handleChange}
+                placeholder="Riphah International University"
+                className="mt-1 bg-white/20 text-white placeholder-white/70 border-red-300 focus:ring-red-400"
+              />
+            </div>
+            <div>
+              <Label htmlFor="department" className="text-white">Department (Optional)</Label>
+              <Input
+                type="text"
+                id="department"
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                placeholder="Computing"
+                className="mt-1 bg-white/20 text-white placeholder-white/70 border-red-300 focus:ring-red-400"
+              />
             </div>
           </div>
 

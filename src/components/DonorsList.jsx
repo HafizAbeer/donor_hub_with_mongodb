@@ -128,6 +128,7 @@ export default function DonorsList() {
   const [filterCity, setFilterCity] = useState("");
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [showHosteliteOnly, setShowHosteliteOnly] = useState(false);
+  const [showUnassignedOnly, setShowUnassignedOnly] = useState(false);
   const [donors, setDonors] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -138,6 +139,7 @@ export default function DonorsList() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [admins, setAdmins] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMarkingDonated, setIsMarkingDonated] = useState(null);
   const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
@@ -152,7 +154,37 @@ export default function DonorsList() {
     address: "",
     bloodGroup: "",
     hostelite: false,
+    university: "",
+    department: "",
+    addedBy: "",
+    cnic: "",
+    province: "",
+    gender: "",
+    dateOfBirth: "",
+    emergencyContact: "",
+    emergencyPhone: "",
+    medicalConditions: "",
+    allergies: "",
   });
+
+  useEffect(() => {
+    if (isSuperAdmin && token) {
+      const fetchAdmins = async () => {
+        try {
+          const res = await fetch('/api/users?role=admin', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setAdmins(data);
+          }
+        } catch (error) {
+          console.error("Fetch admins error:", error);
+        }
+      };
+      fetchAdmins();
+    }
+  }, [isSuperAdmin, token]);
 
   useEffect(() => {
     const fetchDonors = async () => {
@@ -196,13 +228,15 @@ export default function DonorsList() {
     const matchesAvailability =
       !restrictToAvailable || (restrictToAvailable && donor.isAvailable);
     const matchesHostelite = !showHosteliteOnly || donor.hostelite;
+    const matchesUnassigned = !showUnassignedOnly || !donor.university || donor.university.trim() === "";
 
     return (
       matchesSearch &&
       matchesBloodGroup &&
       matchesCity &&
       matchesAvailability &&
-      matchesHostelite
+      matchesHostelite &&
+      matchesUnassigned
     );
   });
 
@@ -239,6 +273,17 @@ export default function DonorsList() {
       address: donor.address || "",
       bloodGroup: donor.bloodGroup,
       hostelite: donor.hostelite,
+      university: donor.university || "",
+      department: donor.department || "",
+      addedBy: donor.addedBy || "",
+      cnic: donor.cnic || "",
+      province: donor.province || "Punjab",
+      gender: donor.gender || "",
+      dateOfBirth: donor.dateOfBirth ? new Date(donor.dateOfBirth).toISOString().split('T')[0] : "",
+      emergencyContact: donor.emergencyContact || "",
+      emergencyPhone: donor.emergencyPhone || "",
+      medicalConditions: donor.medicalConditions || "",
+      allergies: donor.allergies || "",
     });
     setErrorMessage("");
     setShowSuccess(false);
@@ -474,11 +519,22 @@ export default function DonorsList() {
               <MapPin className="w-5 h-5 text-red-600" />
               Donors by City
             </h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={cityStats}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#fecdd3" />
-                <XAxis dataKey="city" stroke="#991b1b" />
-                <YAxis stroke="#991b1b" />
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart
+                data={cityStats}
+                margin={{ top: 20, right: 30, left: 20, bottom: 90 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#fecdd3" vertical={false} />
+                <XAxis
+                  dataKey="city"
+                  stroke="#991b1b"
+                  fontSize={10}
+                  interval={0}
+                  angle={-90}
+                  textAnchor="end"
+                  height={80}
+                />
+                <YAxis stroke="#991b1b" fontSize={11} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "#fff",
@@ -489,7 +545,7 @@ export default function DonorsList() {
                 <Bar
                   dataKey="donors"
                   fill="#ef4444"
-                  radius={[8, 8, 0, 0]}
+                  radius={[4, 4, 0, 0]}
                   name="Donors"
                 />
               </BarChart>
@@ -559,6 +615,17 @@ export default function DonorsList() {
               />
               Hostelites
             </label>
+            {isSuperAdmin && (
+              <label className="flex items-center gap-2 text-sm text-red-700 dark:text-red-300 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showUnassignedOnly}
+                  onChange={() => setShowUnassignedOnly(!showUnassignedOnly)}
+                  className="h-4 w-4 accent-red-600"
+                />
+                Unassigned
+              </label>
+            )}
             {(filterBloodGroup || filterCity || searchTerm) && (
               <Button
                 variant="outline"
@@ -568,6 +635,7 @@ export default function DonorsList() {
                   setFilterCity("");
                   setShowAvailableOnly(false);
                   setShowHosteliteOnly(false);
+                  setShowUnassignedOnly(false);
                 }}
                 className="border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/50"
               >
@@ -796,14 +864,45 @@ export default function DonorsList() {
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-phone">Phone Number</Label>
-                    <Input
-                      id="edit-phone"
-                      value={editForm.phone}
-                      onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                      required
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-phone">Phone Number</Label>
+                      <Input
+                        id="edit-phone"
+                        value={editForm.phone}
+                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-cnic">CNIC</Label>
+                      <Input
+                        id="edit-cnic"
+                        value={editForm.cnic}
+                        onChange={(e) => setEditForm({ ...editForm, cnic: e.target.value })}
+                        placeholder="35201-XXXXXXX-X"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-university">University</Label>
+                      <Input
+                        id="edit-university"
+                        value={editForm.university}
+                        onChange={(e) => setEditForm({ ...editForm, university: e.target.value })}
+                        placeholder="Riphah"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-department">Department</Label>
+                      <Input
+                        id="edit-department"
+                        value={editForm.department}
+                        onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                        placeholder="Computing"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="edit-address">Home Address</Label>
@@ -812,6 +911,44 @@ export default function DonorsList() {
                       value={editForm.address}
                       onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
                     />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-conditions">Medical Conditions</Label>
+                      <Input
+                        id="edit-conditions"
+                        value={editForm.medicalConditions}
+                        onChange={(e) => setEditForm({ ...editForm, medicalConditions: e.target.value })}
+                        placeholder="e.g. None"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-allergies">Allergies</Label>
+                      <Input
+                        id="edit-allergies"
+                        value={editForm.allergies}
+                        onChange={(e) => setEditForm({ ...editForm, allergies: e.target.value })}
+                        placeholder="e.g. Penicillin"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-red-50 dark:border-red-900/30">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-econtact">Emergency Contact Name</Label>
+                      <Input
+                        id="edit-econtact"
+                        value={editForm.emergencyContact}
+                        onChange={(e) => setEditForm({ ...editForm, emergencyContact: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-ephone">Emergency Phone</Label>
+                      <Input
+                        id="edit-ephone"
+                        value={editForm.emergencyPhone}
+                        onChange={(e) => setEditForm({ ...editForm, emergencyPhone: e.target.value })}
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 px-1 pt-1">
                     <input
@@ -823,6 +960,28 @@ export default function DonorsList() {
                     />
                     <Label htmlFor="edit-hostelite" className="cursor-pointer">Hostelite Donor</Label>
                   </div>
+
+                  {isSuperAdmin && (
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-admin">Assigned Administrator</Label>
+                      <select
+                        id="edit-admin"
+                        value={editForm.addedBy}
+                        onChange={(e) => setEditForm({ ...editForm, addedBy: e.target.value })}
+                        className="w-full h-10 px-3 bg-white dark:bg-red-900/30 border border-slate-200 dark:border-slate-800 rounded-md text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500"
+                      >
+                        <option value="">No Admin Assigned</option>
+                        {admins.map((admin) => (
+                          <option key={admin._id} value={admin._id}>
+                            {admin.name} ({admin.university || 'No University'})
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-[10px] text-red-600 dark:text-red-400 italic">
+                        * SuperAdmins can manually assign donors to specific university admins.
+                      </p>
+                    </div>
+                  )}
 
                   <div className="pt-4 flex gap-3">
                     <Button
@@ -1015,6 +1174,18 @@ export default function DonorsList() {
                                 <span className="text-slate-500">Address</span>
                                 <span className="font-semibold text-slate-900 dark:text-white text-right max-w-[150px] truncate" title={donorToShow.address}>
                                   {donorToShow.address || 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center text-sm">
+                                <span className="text-slate-500">University</span>
+                                <span className="font-semibold text-slate-900 dark:text-white text-right max-w-[150px] truncate">
+                                  {donorToShow.university || 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center text-sm">
+                                <span className="text-slate-500">Department</span>
+                                <span className="font-semibold text-slate-900 dark:text-white text-right max-w-[150px] truncate">
+                                  {donorToShow.department || 'N/A'}
                                 </span>
                               </div>
                             </div>

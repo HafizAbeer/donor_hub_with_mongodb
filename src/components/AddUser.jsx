@@ -31,6 +31,8 @@ export default function AddUser() {
     lastDonation: '',
     hostelite: false,
     password: '',
+    university: '',
+    department: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -294,7 +296,31 @@ export default function AddUser() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="space-y-2">
+                <Label htmlFor="university" className="text-red-900 dark:text-red-100">University (Optional)</Label>
+                <Input
+                  id="university"
+                  name="university"
+                  value={formData.university}
+                  onChange={handleChange}
+                  placeholder="Riphah International University"
+                  className="bg-white dark:bg-red-900/10 border-red-200 dark:border-red-800"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="department" className="text-red-900 dark:text-red-100">Department (Optional)</Label>
+                <Input
+                  id="department"
+                  name="department"
+                  value={formData.department}
+                  onChange={handleChange}
+                  placeholder="Computing"
+                  className="bg-white dark:bg-red-900/10 border-red-200 dark:border-red-800"
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="province" className="text-red-900 dark:text-red-100">Province</Label>
                 <select
@@ -309,7 +335,9 @@ export default function AddUser() {
                   ))}
                 </select>
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
                 <Label htmlFor="city" className="text-red-900 dark:text-red-100">City *</Label>
                 <Input

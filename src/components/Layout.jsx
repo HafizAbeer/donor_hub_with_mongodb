@@ -41,7 +41,7 @@ const menuItemsByRole = {
     { title: "Add User", url: "/add-user", icon: UserPlus },
     { title: "All Donors", url: "/donors", icon: Users },
     { title: "All Admins", url: "/admins", icon: Shield },
-    { title: "Patient History", url: "/patient-history", icon: History },
+    { title: "Blood Request", url: "/blood-request", icon: History },
     { title: "Settings", url: "/settings", icon: Settings },
   ],
   admin: [
@@ -49,12 +49,12 @@ const menuItemsByRole = {
     { title: "Manage Events", url: "/events-manager", icon: Calendar },
     { title: "Add User", url: "/add-user", icon: UserPlus },
     { title: "All Donors", url: "/donors", icon: Users },
-    { title: "Patient History", url: "/patient-history", icon: History },
+    { title: "Blood Request", url: "/blood-request", icon: History },
     { title: "Settings", url: "/settings", icon: Settings },
   ],
   user: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-    { title: "Patient History", url: "/patient-history", icon: History },
+    { title: "Blood Request", url: "/blood-request", icon: History },
     { title: "My Profile", url: "/profile", icon: UserCircle },
   ],
 };
@@ -180,7 +180,7 @@ export default function Layout({ children }) {
       "/add-user": "Add User",
       "/donors": "All Donors",
       "/profile": "My Profile",
-      "/patient-history": "Patient History",
+      "/blood-request": "Blood Request",
       "/settings": "Settings",
     };
 

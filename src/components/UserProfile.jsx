@@ -36,6 +36,8 @@ export default function UserProfile() {
     dateOfBirth: '',
     address: '',
     city: '',
+    university: '',
+    department: '',
   });
 
   useEffect(() => {
@@ -48,6 +50,8 @@ export default function UserProfile() {
         dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '',
         address: user.address || '',
         city: user.city || '',
+        university: user.university || '',
+        department: user.department || '',
       });
     }
   }, [user]);
@@ -406,6 +410,33 @@ export default function UserProfile() {
                   className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
                   required
                 />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <Label htmlFor="university" className="text-red-900 dark:text-red-100">University</Label>
+                  <Input
+                    type="text"
+                    id="university"
+                    name="university"
+                    value={formData.university}
+                    onChange={handleChange}
+                    placeholder="Riphah International University"
+                    className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="department" className="text-red-900 dark:text-red-100">Department</Label>
+                  <Input
+                    type="text"
+                    id="department"
+                    name="department"
+                    value={formData.department}
+                    onChange={handleChange}
+                    placeholder="Computing"
+                    className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
+                  />
+                </div>
               </div>
 
               <div>

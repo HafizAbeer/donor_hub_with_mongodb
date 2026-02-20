@@ -115,6 +115,19 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    university: {
+        type: String,
+        default: '',
+    },
+    department: {
+        type: String,
+        default: '',
+    },
+    addedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
 }, {
     timestamps: true,
 });

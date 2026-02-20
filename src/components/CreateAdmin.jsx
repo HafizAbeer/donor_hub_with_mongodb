@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Shield, User, Mail, Lock, Phone, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
+import { Shield, User, Mail, Lock, Phone, MapPin, AlertCircle, CheckCircle, Droplet, FileText } from 'lucide-react';
 import ReactCountryFlag from 'react-country-flag';
 
 export default function CreateAdmin() {
@@ -23,6 +23,10 @@ export default function CreateAdmin() {
       manageDonors: true,
       viewReports: true,
     },
+    university: '',
+    department: '',
+    bloodGroup: '',
+    cnic: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -60,6 +64,10 @@ export default function CreateAdmin() {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
+    if (!formData.bloodGroup) {
+      newErrors.bloodGroup = 'Blood group is required';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -76,7 +84,20 @@ export default function CreateAdmin() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify(formData)
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            phone: formData.phone,
+            bloodGroup: formData.bloodGroup,
+            city: formData.city,
+            address: formData.address,
+            role: formData.role,
+            permissions: formData.permissions,
+            university: formData.university,
+            department: formData.department,
+            cnic: formData.cnic,
+          })
         });
 
         const data = await res.json();
@@ -98,6 +119,10 @@ export default function CreateAdmin() {
                 manageDonors: true,
                 viewReports: true,
               },
+              university: '',
+              department: '',
+              bloodGroup: '',
+              cnic: '',
             });
           }, 2000);
         } else {
@@ -208,6 +233,43 @@ export default function CreateAdmin() {
               {errors.phone && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.phone}</p>}
             </div>
 
+            <div>
+              <Label htmlFor="bloodGroup" className="text-red-900 dark:text-red-100 flex items-center gap-2">
+                <Droplet className="w-4 h-4 text-red-600" />
+                Blood Group
+              </Label>
+              <select
+                id="bloodGroup"
+                name="bloodGroup"
+                value={formData.bloodGroup}
+                onChange={handleChange}
+                className={`mt-2 w-full h-10 px-3 bg-white dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-md text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500 focus:outline-none ${errors.bloodGroup ? 'border-red-500' : ''}`}
+                required
+              >
+                <option value="">Select Blood Group</option>
+                {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => (
+                  <option key={bg} value={bg}>{bg}</option>
+                ))}
+              </select>
+              {errors.bloodGroup && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.bloodGroup}</p>}
+            </div>
+
+            <div>
+              <Label htmlFor="cnic" className="text-red-900 dark:text-red-100 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-red-600" />
+                CNIC Number
+              </Label>
+              <Input
+                type="text"
+                id="cnic"
+                name="cnic"
+                value={formData.cnic}
+                onChange={handleChange}
+                placeholder="35202-1234567-8"
+                className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
+              />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
               <div>
                 <Label htmlFor="city" className="text-red-900 dark:text-red-100">City</Label>
@@ -237,6 +299,34 @@ export default function CreateAdmin() {
                   <option value="admin">Admin</option>
                   <option value="superadmin">Super Admin</option>
                 </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+              <div>
+                <Label htmlFor="university" className="text-red-900 dark:text-red-100">University (Optional)</Label>
+                <Input
+                  type="text"
+                  id="university"
+                  name="university"
+                  value={formData.university}
+                  onChange={handleChange}
+                  placeholder="Riphah International University"
+                  className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="department" className="text-red-900 dark:text-red-100">Department (Optional)</Label>
+                <Input
+                  type="text"
+                  id="department"
+                  name="department"
+                  value={formData.department}
+                  onChange={handleChange}
+                  placeholder="Computing"
+                  className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
+                />
               </div>
             </div>
 

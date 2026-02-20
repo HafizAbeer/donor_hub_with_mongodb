@@ -9,19 +9,11 @@ import {
   UserPlus,
   Activity,
   TrendingUp,
-  Calendar,
   MapPin,
   Filter,
   Edit2,
   Trash2,
-  X,
-  CheckCircle2,
-  AlertTriangle,
 } from "lucide-react";
-import { Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import DonationModals from "./DonationModals";
 import {
   BarChart,
@@ -50,11 +42,15 @@ export default function AdminDashboard() {
       totalDonors: 0,
       activeDonors: 0,
       newThisMonth: 0,
-      totalDonations: 0
+      totalDonations: 0,
+      activeDonorsThisMonth: 0,
+      donationsThisMonth: 0
     },
     bloodGroupData: [],
     monthlyTrend: [],
-    recentDonations: []
+    recentDonations: [],
+    universityData: [],
+    cityData: []
   });
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -87,15 +83,15 @@ export default function AdminDashboard() {
   const statCards = React.useMemo(() => [
     {
       title: "Total Donors",
-      value: data.stats.totalDonors.toString(),
-      change: `+${data.stats.newThisMonth}`,
+      value: (data.stats.totalDonors || 0).toString(),
+      change: `+${data.stats.newThisMonth || 0}`,
       icon: Heart,
       color: "text-red-600",
       bgColor: "bg-red-100 dark:bg-red-900/30",
     },
     {
       title: "Active Donors",
-      value: data.stats.activeDonors.toString(),
+      value: (data.stats.activeDonors || 0).toString(),
       change: `+${data.stats.activeDonorsThisMonth || 0}`,
       icon: Users,
       color: "text-pink-600",
@@ -103,15 +99,15 @@ export default function AdminDashboard() {
     },
     {
       title: "New This Month",
-      value: data.stats.newThisMonth.toString(),
-      change: `+${data.stats.newThisMonth}`,
+      value: (data.stats.newThisMonth || 0).toString(),
+      change: `+${data.stats.newThisMonth || 0}`,
       icon: UserPlus,
       color: "text-red-500",
       bgColor: "bg-red-100 dark:bg-red-900/30",
     },
     {
       title: "Total Donations",
-      value: data.stats.totalDonations.toString(),
+      value: (data.stats.totalDonations || 0).toString(),
       change: `+${data.stats.donationsThisMonth || 0}`,
       icon: Activity,
       color: "text-pink-500",
@@ -163,7 +159,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat) => (
+        {(statCards || []).map((stat) => (
           <Card
             key={stat.title}
             className="p-4 md:p-6 bg-white/80 dark:bg-red-950/50 backdrop-blur-sm border-red-200 dark:border-red-900 hover:shadow-lg transition-shadow"
@@ -197,7 +193,7 @@ export default function AdminDashboard() {
             <Filter className="w-4 h-4 text-red-600" />
           </div>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.monthlyTrend}>
+            <BarChart data={data.monthlyTrend || []}>
               <CartesianGrid strokeDasharray="3 3" stroke="#fecdd3" />
               <XAxis dataKey="month" stroke="#991b1b" />
               <YAxis stroke="#991b1b" />
@@ -209,18 +205,8 @@ export default function AdminDashboard() {
                 }}
               />
               <Legend />
-              <Bar
-                dataKey="donations"
-                fill="#ef4444"
-                name="Donations"
-                radius={[8, 8, 0, 0]}
-              />
-              <Bar
-                dataKey="donors"
-                fill="#ec4899"
-                name="New Donors"
-                radius={[8, 8, 0, 0]}
-              />
+              <Bar dataKey="donations" fill="#ef4444" name="Donations" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="donors" fill="#ec4899" name="New Donors" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -232,31 +218,20 @@ export default function AdminDashboard() {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={data.bloodGroupData}
+                data={data.bloodGroupData || []}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
               >
-                {data.bloodGroupData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
+                {(data.bloodGroupData || []).map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #fecdd3",
-                  borderRadius: "8px",
-                }}
-              />
+              <Tooltip contentStyle={{ backgroundColor: "#fff", border: "1px solid #fecdd3", borderRadius: "8px" }} />
             </PieChart>
           </ResponsiveContainer>
         </Card>
@@ -265,37 +240,32 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <Card className="p-4 md:p-6 bg-white/80 dark:bg-red-950/50 backdrop-blur-sm border-red-200 dark:border-red-900">
           <h3 className="text-lg md:text-xl font-semibold text-red-900 dark:text-red-100 mb-4 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-red-600" />
-            Donation Activity (Last 6 Months)
+            <MapPin className="w-5 h-5 text-red-600" />
+            Donors by City
           </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={data.monthlyTrend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#fecdd3" />
-              <XAxis dataKey="month" stroke="#991b1b" />
-              <YAxis stroke="#991b1b" />
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart
+              data={data.cityData || []}
+              margin={{ top: 20, right: 30, left: 20, bottom: 100 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#fecdd3" vertical={false} />
+              <XAxis
+                dataKey="city"
+                stroke="#991b1b"
+                fontSize={11}
+                interval={0}
+                angle={-90}
+                textAnchor="end"
+                height={100}
+              />
+              <YAxis stroke="#991b1b" fontSize={11} />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #fecdd3",
-                  borderRadius: "8px",
-                }}
+                contentStyle={{ backgroundColor: "#fff", border: "1px solid #fecdd3", borderRadius: "8px" }}
               />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="donations"
-                stroke="#ef4444"
-                strokeWidth={2}
-                name="Donations"
-              />
-              <Line
-                type="monotone"
-                dataKey="donors"
-                stroke="#ec4899"
-                strokeWidth={2}
-                name="New Donors"
-              />
-            </LineChart>
+              <Legend verticalAlign="top" height={36} />
+              <Bar dataKey="donors" fill="#ef4444" name="Donors" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="donations" fill="#ec4899" name="Donations" radius={[4, 4, 0, 0]} />
+            </BarChart>
           </ResponsiveContainer>
         </Card>
 
@@ -304,49 +274,28 @@ export default function AdminDashboard() {
             Recent Donations
           </h3>
           <div className="space-y-3 max-h-[250px] overflow-y-auto">
-            {data.recentDonations.length === 0 ? (
+            {(!data.recentDonations || data.recentDonations.length === 0) ? (
               <p className="text-center text-red-500 py-4">No recent donations found</p>
             ) : (
-              data.recentDonations.map((donation) => (
-                <div
-                  key={donation.id}
-                  className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/30 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
-                >
+              (data.recentDonations || []).map((donation) => (
+                <div key={donation.id} className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/30 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-semibold">
                     {donation.donor.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-red-900 dark:text-red-100">
-                      {donation.donor}
-                    </p>
+                    <p className="text-sm font-medium text-red-900 dark:text-red-100">{donation.donor}</p>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-xs text-red-600 dark:text-red-400 font-medium">
-                        {donation.bloodGroup}
-                      </span>
+                      <span className="text-xs text-red-600 dark:text-red-400 font-medium">{donation.bloodGroup}</span>
                       <span className="text-xs text-red-500 dark:text-red-500 flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         {donation.location}
                       </span>
                     </div>
-                    <p className="text-xs text-red-500 dark:text-red-500 mt-1">
-                      {donation.dateDisplay}
-                    </p>
+                    <p className="text-xs text-red-500 dark:text-red-500 mt-1">{donation.dateDisplay}</p>
                   </div>
                   <div className="flex gap-1">
-                    <button
-                      onClick={() => openEditModal(donation)}
-                      className="p-1.5 text-red-600 hover:bg-red-200 dark:hover:bg-red-800/50 rounded-md transition-colors"
-                      title="Edit Donation"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(donation)}
-                      className="p-1.5 text-rose-600 hover:bg-rose-200 dark:hover:bg-rose-800/50 rounded-md transition-colors"
-                      title="Delete Donation"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <button onClick={() => openEditModal(donation)} className="p-1.5 text-red-600 hover:bg-red-200 dark:hover:bg-red-800/50 rounded-md transition-colors tooltip"><Edit2 className="w-4 h-4" /></button>
+                    <button onClick={() => openDeleteModal(donation)} className="p-1.5 text-rose-600 hover:bg-rose-200 dark:hover:bg-rose-800/50 rounded-md transition-colors tooltip"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
               ))
@@ -359,32 +308,15 @@ export default function AdminDashboard() {
         <Card className="p-4 md:p-6 bg-gradient-to-br from-red-500 to-pink-500 text-white">
           <Activity className="w-8 h-8 mb-3" />
           <h3 className="text-lg font-semibold mb-2">Record Donation</h3>
-          <p className="text-sm opacity-90 mb-4">
-            Log a new blood donation entry manually
-          </p>
-          <Link to="/patient-history" className="block">
-            <Button className="bg-white text-red-600 hover:bg-red-50 w-full font-semibold">
-              Go to Records
-            </Button>
-          </Link>
+          <p className="text-sm opacity-90 mb-4">Log a new blood donation entry manually</p>
+          <Link to="/patient-history" className="block"><Button className="bg-white text-red-600 hover:bg-red-50 w-full font-semibold">Go to Records</Button></Link>
         </Card>
 
         <Card className="p-4 md:p-6 bg-white/80 dark:bg-red-950/50 backdrop-blur-sm border-red-200 dark:border-red-900">
           <Users className="w-8 h-8 text-red-600 mb-3" />
-          <h3 className="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">
-            View All Donors
-          </h3>
-          <p className="text-sm text-red-700 dark:text-red-300 mb-4">
-            Browse and manage all registered donors
-          </p>
-          <Link to="/donors" className="block">
-            <Button
-              variant="outline"
-              className="w-full border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/50"
-            >
-              View Donors
-            </Button>
-          </Link>
+          <h3 className="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">View All Donors</h3>
+          <p className="text-sm text-red-700 dark:text-red-300 mb-4">Browse and manage all registered donors</p>
+          <Link to="/donors" className="block"><Button variant="outline" className="w-full border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/50">View Donors</Button></Link>
         </Card>
       </div>
 

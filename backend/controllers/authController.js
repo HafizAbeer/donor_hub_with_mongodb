@@ -10,7 +10,11 @@ const generateToken = (id) => {
 };
 
 const registerUser = async (req, res) => {
-    const { name, email, password, phone, bloodGroup, city, address, role, province, gender, dateOfBirth, hostelite } = req.body;
+    const {
+        name, email, password, phone, bloodGroup, city, address, role,
+        province, gender, dateOfBirth, hostelite, university, department,
+        cnic, emergencyContact, emergencyPhone, medicalConditions, allergies
+    } = req.body;
 
     try {
         const userExists = await User.findOne({ email });
@@ -20,6 +24,17 @@ const registerUser = async (req, res) => {
         }
 
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+        let addedBy = null;
+        if (role !== 'admin' && role !== 'superadmin' && university) {
+            const assignedAdmin = await User.findOne({
+                role: 'admin',
+                university: { $regex: new RegExp(`^${university}$`, 'i') }
+            });
+            if (assignedAdmin) {
+                addedBy = assignedAdmin._id;
+            }
+        }
 
         const user = await User.create({
             name,
@@ -34,6 +49,14 @@ const registerUser = async (req, res) => {
             gender,
             dateOfBirth,
             hostelite,
+            university,
+            department,
+            cnic,
+            emergencyContact,
+            emergencyPhone,
+            medicalConditions,
+            allergies,
+            addedBy,
             isVerified: false,
             verificationCode,
         });
@@ -202,6 +225,8 @@ const getMe = async (req, res) => {
             pushNotifications: user.pushNotifications,
             theme: user.theme,
             profileVisibility: user.profileVisibility,
+            university: user.university,
+            department: user.department,
         });
     } else {
         res.status(404).json({ message: 'User not found' });

@@ -15,6 +15,8 @@ import {
     X,
     CheckCircle2,
     AlertTriangle,
+    Droplet,
+    FileText,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -43,6 +45,10 @@ const AdminsList = () => {
             manageDonors: false,
             viewReports: false,
         },
+        university: "",
+        department: "",
+        bloodGroup: "",
+        cnic: "",
     });
 
     const fetchAdmins = async () => {
@@ -90,6 +96,10 @@ const AdminsList = () => {
                 manageDonors: false,
                 viewReports: false,
             },
+            university: admin.university || "",
+            department: admin.department || "",
+            bloodGroup: admin.bloodGroup || "",
+            cnic: admin.cnic || "",
         });
         setIsEditModalOpen(true);
     };
@@ -228,6 +238,10 @@ const AdminsList = () => {
                             <div className="space-y-2 text-sm text-red-700 dark:text-red-300">
                                 <div className="flex items-center gap-2"><Mail size={14} /> {admin.email}</div>
                                 <div className="flex items-center gap-2"><Phone size={14} /> {admin.phone}</div>
+                                {admin.university && <div className="flex items-center gap-2"><MapPin size={14} /> {admin.university}</div>}
+                                {admin.department && <div className="flex items-center gap-2"><Shield size={14} className="w-3.5 h-3.5" /> {admin.department}</div>}
+                                {admin.cnic && <div className="flex items-center gap-2 text-[11px] opacity-70"><FileText size={12} /> {admin.cnic}</div>}
+                                <div className="flex items-center gap-2"><Droplet size={14} className="text-red-600" /> <span className="font-bold">{admin.bloodGroup || 'N/A'}</span></div>
                             </div>
 
                             <div className="mt-4 pt-3 border-t border-red-100 dark:border-red-900/50">
@@ -262,15 +276,60 @@ const AdminsList = () => {
                                     <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} required />
                                 </div>
                                 <div>
-                                    <Label>Role</Label>
+                                    <Label>Account Role</Label>
                                     <select
                                         value={editForm.role}
                                         onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                                        className="w-full h-10 px-3 bg-white dark:bg-red-900/30 border border-slate-200 rounded-md"
+                                        className="w-full h-10 px-3 bg-white dark:bg-red-950/30 border border-slate-200 dark:border-red-800 rounded-md text-red-900 dark:text-red-100"
                                     >
                                         <option value="admin">Admin</option>
                                         <option value="superadmin">Super Admin</option>
                                     </select>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label>Blood Group</Label>
+                                        <select
+                                            value={editForm.bloodGroup}
+                                            onChange={(e) => setEditForm({ ...editForm, bloodGroup: e.target.value })}
+                                            className="w-full h-10 px-3 bg-white dark:bg-red-950/30 border border-slate-200 dark:border-red-800 rounded-md text-red-900 dark:text-red-100"
+                                            required
+                                        >
+                                            <option value="">Select Blood Group</option>
+                                            {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => (
+                                                <option key={bg} value={bg}>{bg}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <Label>CNIC</Label>
+                                        <Input
+                                            value={editForm.cnic}
+                                            onChange={(e) => setEditForm({ ...editForm, cnic: e.target.value })}
+                                            placeholder="35202-XXXXXXX-X"
+                                            className="bg-white dark:bg-red-950/30 border-slate-200 dark:border-red-800 text-red-900 dark:text-red-100"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label>University</Label>
+                                        <Input
+                                            value={editForm.university}
+                                            onChange={(e) => setEditForm({ ...editForm, university: e.target.value })}
+                                            placeholder="Riphah"
+                                            className="bg-white dark:bg-red-950/30 border-slate-200 dark:border-red-800 text-red-900 dark:text-red-100"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label>Department</Label>
+                                        <Input
+                                            value={editForm.department}
+                                            onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                                            placeholder="Computing"
+                                            className="bg-white dark:bg-red-950/30 border-slate-200 dark:border-red-800 text-red-900 dark:text-red-100"
+                                        />
+                                    </div>
                                 </div>
                                 <div className="space-y-3">
                                     <Label>Permissions</Label>

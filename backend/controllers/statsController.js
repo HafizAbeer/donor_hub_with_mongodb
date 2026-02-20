@@ -4,12 +4,25 @@ import BloodRequest from '../models/BloodRequest.js';
 
 const getAdminStats = async (req, res) => {
     try {
-        const totalDonors = await User.countDocuments({ role: 'user' });
+        const adminId = req.user._id;
+        const university = req.user.university;
+
+        // Find all donor IDs belonging to this admin
+        const myDonorIds = await User.find({
+            role: 'user',
+            addedBy: adminId
+        }).distinct('_id');
+
+        const totalDonors = await User.countDocuments({
+            role: 'user',
+            addedBy: adminId
+        });
 
         const twelveMonthsAgo = new Date();
         twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
         const activeDonors = await User.countDocuments({
             role: 'user',
+            addedBy: adminId,
             lastDonationDate: { $gte: twelveMonthsAgo }
         });
 
@@ -18,22 +31,30 @@ const getAdminStats = async (req, res) => {
         startOfMonth.setDate(1);
         const newThisMonth = await User.countDocuments({
             role: 'user',
+            addedBy: adminId,
             createdAt: { $gte: startOfMonth }
         });
 
-        const totalDonations = await Donation.countDocuments();
+        const totalDonations = await Donation.countDocuments({ donor: { $in: myDonorIds } });
 
         const donationsThisMonth = await Donation.countDocuments({
+            donor: { $in: myDonorIds },
             date: { $gte: startOfMonth }
         });
 
         const activeDonorsThisMonth = await User.countDocuments({
             role: 'user',
+            addedBy: adminId,
             lastDonationDate: { $gte: startOfMonth }
         });
 
         const bloodGroups = await User.aggregate([
-            { $match: { role: 'user' } },
+            {
+                $match: {
+                    role: 'user',
+                    addedBy: adminId
+                }
+            },
             { $group: { _id: '$bloodGroup', count: { $sum: 1 } } }
         ]);
 
@@ -48,7 +69,7 @@ const getAdminStats = async (req, res) => {
         sixMonthsAgo.setHours(0, 0, 0, 0);
 
         const donationTrend = await Donation.aggregate([
-            { $match: { date: { $gte: sixMonthsAgo } } },
+            { $match: { donor: { $in: myDonorIds }, date: { $gte: sixMonthsAgo } } },
             {
                 $group: {
                     _id: {
@@ -62,7 +83,13 @@ const getAdminStats = async (req, res) => {
         ]);
 
         const userTrend = await User.aggregate([
-            { $match: { role: 'user', createdAt: { $gte: sixMonthsAgo } } },
+            {
+                $match: {
+                    role: 'user',
+                    addedBy: adminId,
+                    createdAt: { $gte: sixMonthsAgo }
+                }
+            },
             {
                 $group: {
                     _id: {
@@ -94,7 +121,7 @@ const getAdminStats = async (req, res) => {
             });
         }
 
-        const recentDonations = await Donation.find()
+        const recentDonations = await Donation.find({ donor: { $in: myDonorIds } })
             .populate('donor', 'name')
             .sort({ date: -1 })
             .limit(5);
@@ -110,6 +137,42 @@ const getAdminStats = async (req, res) => {
             notes: d.notes || '',
         }));
 
+        const universityStats = await User.aggregate([
+            {
+                $match: {
+                    role: 'user',
+                    addedBy: adminId,
+                    university: { $ne: '' }
+                }
+            },
+            { $group: { _id: '$university', donors: { $sum: 1 } } },
+            { $sort: { donors: -1 } },
+            { $limit: 10 }
+        ]);
+
+        const universityData = universityStats.map(u => ({
+            university: u._id,
+            donors: u.donors
+        }));
+
+        const cityStats = await User.aggregate([
+            {
+                $match: {
+                    role: 'user',
+                    addedBy: adminId
+                }
+            },
+            { $group: { _id: '$city', donors: { $sum: 1 } } },
+            { $sort: { donors: -1 } },
+            { $limit: 10 }
+        ]);
+
+        const cityData = cityStats.map(c => ({
+            city: c._id || 'Unknown',
+            donors: c.donors,
+            donations: Math.floor(c.donors * 1.5) // Estimated based on donor count
+        }));
+
         res.json({
             stats: {
                 totalDonors,
@@ -121,7 +184,9 @@ const getAdminStats = async (req, res) => {
             },
             bloodGroupData,
             monthlyTrend,
-            recentDonations: recentDonationsData
+            recentDonations: recentDonationsData,
+            universityData,
+            cityData
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -132,6 +197,10 @@ const getSuperAdminStats = async (req, res) => {
     try {
         const totalUsers = await User.countDocuments({ role: 'user' });
         const totalAdmins = await User.countDocuments({ role: 'admin' });
+        const unassignedDonors = await User.find({
+            role: 'user',
+            $or: [{ university: '' }, { university: null }]
+        }).sort({ createdAt: -1 });
 
         const twelveMonthsAgo = new Date();
         twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
@@ -243,6 +312,31 @@ const getSuperAdminStats = async (req, res) => {
             });
         }
 
+        const universityStats = await User.aggregate([
+            { $match: { role: 'user', university: { $ne: '' } } },
+            {
+                $group: {
+                    _id: '$university',
+                    donorsCount: { $sum: 1 },
+                    donorsList: {
+                        $push: {
+                            name: '$name',
+                            phone: '$phone',
+                            bloodGroup: '$bloodGroup'
+                        }
+                    }
+                }
+            },
+            { $sort: { donorsCount: -1 } },
+            { $limit: 10 }
+        ]);
+
+        const universityData = universityStats.map(u => ({
+            university: u._id,
+            donors: u.donorsCount,
+            donorDetails: u.donorsList
+        }));
+
         res.json({
             stats: {
                 totalUsers,
@@ -253,7 +347,9 @@ const getSuperAdminStats = async (req, res) => {
             bloodGroupData,
             cityData,
             recentActivities,
-            donationData: donationDataChart
+            donationData: donationDataChart,
+            universityData,
+            unassignedDonors
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

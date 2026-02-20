@@ -16,7 +16,7 @@ import DonorsList from "./components/DonorsList";
 import AdminsList from "./components/AdminsList";
 import UserProfile from "./components/UserProfile";
 import Settings from "./pages/Settings";
-import PatientHistory from "./pages/PatientHistory";
+import BloodRequest from "./pages/BloodRequest";
 import "./App.css";
 
 function PrivateRoutes() {
@@ -89,10 +89,10 @@ function PrivateRoutes() {
           }
         />
         <Route
-          path="/patient-history"
+          path="/blood-request"
           element={
             <ProtectedRoute>
-              <PatientHistory />
+              <BloodRequest />
             </ProtectedRoute>
           }
         />
