@@ -41,6 +41,7 @@ const menuItemsByRole = {
     { title: "Add User", url: "/add-user", icon: UserPlus },
     { title: "All Donors", url: "/donors", icon: Users },
     { title: "All Admins", url: "/admins", icon: Shield },
+    { title: "System Management", url: "/system-management", icon: Settings },
     { title: "Blood Request", url: "/blood-request", icon: History },
     { title: "Settings", url: "/settings", icon: Settings },
   ],
@@ -182,6 +183,7 @@ export default function Layout({ children }) {
       "/profile": "My Profile",
       "/blood-request": "Blood Request",
       "/settings": "Settings",
+      "/system-management": "System Management",
     };
 
     return pageTitles[path] || "Page";

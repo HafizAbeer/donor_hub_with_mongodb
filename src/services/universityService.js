@@ -38,3 +38,24 @@ export const addUniversity = async (name, token) => {
         throw error;
     }
 };
+
+export const deleteUniversity = async (id, token) => {
+    try {
+        const response = await fetch(`/api/universities/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to delete university');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error deleting university:', error);
+        throw error;
+    }
+};

@@ -9,6 +9,7 @@ import donationRoutes from './routes/donationRoutes.js';
 import requestRoutes from './routes/requestRoutes.js';
 import statsRoutes from './routes/statsRoutes.js';
 import universityRoutes from './routes/universityRoutes.js';
+import departmentRoutes from './routes/departmentRoutes.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -41,6 +42,7 @@ app.use('/api/donations', donationRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/universities', universityRoutes);
+app.use('/api/departments', departmentRoutes);
 
 app.get('/', (req, res) => {
   res.send('Donor Hub API is running...');

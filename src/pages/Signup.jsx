@@ -7,8 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
 import ReactCountryFlag from "react-country-flag";
 import { AlertCircle } from "lucide-react";
-import { DEPARTMENTS } from "@/constants/universityData";
 import { fetchUniversities } from "@/services/universityService";
+import { fetchDepartments } from "@/services/departmentService";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -24,13 +24,18 @@ export default function Signup() {
   });
   const [error, setError] = useState("");
   const [universities, setUniversities] = useState([]);
+  const [departments, setDepartments] = useState([]);
 
   useEffect(() => {
-    const getUniversities = async () => {
-      const data = await fetchUniversities();
-      setUniversities(data);
+    const loadInitialData = async () => {
+      const [uniData, deptData] = await Promise.all([
+        fetchUniversities(),
+        fetchDepartments()
+      ]);
+      setUniversities(uniData);
+      setDepartments(deptData);
     };
-    getUniversities();
+    loadInitialData();
   }, []);
 
   const validatePassword = (password) => {
@@ -236,8 +241,8 @@ export default function Signup() {
                 className="mt-1 w-full px-3 py-2 bg-white/20 text-white border border-red-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-400"
               >
                 <option value="" className="text-black">Select Department</option>
-                {DEPARTMENTS.map(dept => (
-                  <option key={dept} value={dept} className="text-black">{dept}</option>
+                {departments.map(dept => (
+                  <option key={dept._id || dept.name} value={dept.name} className="text-black">{dept.name}</option>
                 ))}
               </select>
             </div>

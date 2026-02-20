@@ -6,8 +6,8 @@ import { Label } from '@/components/ui/label';
 import { UserCircle, Droplet, Calendar, MapPin, Phone, Mail, Save, Heart, Award, TrendingUp, Clock, CheckCircle, Plus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ReactCountryFlag from 'react-country-flag';
-import { DEPARTMENTS } from '@/constants/universityData';
 import { fetchUniversities, addUniversity as addNewUniversityApi } from '@/services/universityService';
+import { fetchDepartments, addDepartment as addNewDepartmentApi } from '@/services/departmentService';
 import {
   LineChart,
   Line,
@@ -30,15 +30,22 @@ export default function UserProfile() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [universities, setUniversities] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [showNewUniversityInput, setShowNewUniversityInput] = useState(false);
   const [newUniversityName, setNewUniversityName] = useState('');
+  const [showNewDepartmentInput, setShowNewDepartmentInput] = useState(false);
+  const [newDepartmentName, setNewDepartmentName] = useState('');
 
   useEffect(() => {
-    const getUniversities = async () => {
-      const data = await fetchUniversities();
-      setUniversities(data);
+    const loadInitialData = async () => {
+      const [uniData, deptData] = await Promise.all([
+        fetchUniversities(),
+        fetchDepartments()
+      ]);
+      setUniversities(uniData);
+      setDepartments(deptData);
     };
-    getUniversities();
+    loadInitialData();
   }, []);
 
   const [formData, setFormData] = useState({
@@ -99,6 +106,7 @@ export default function UserProfile() {
     setIsSaving(true);
     try {
       let finalUniversity = formData.university;
+      let finalDepartment = formData.department;
 
       if (showNewUniversityInput && newUniversityName.trim() && (user.role === 'admin' || user.role === 'superadmin')) {
         try {
@@ -106,6 +114,17 @@ export default function UserProfile() {
           finalUniversity = addedUni.name;
         } catch (err) {
           setErrorMessage(err.message || 'Failed to add new university');
+          setIsSaving(false);
+          return;
+        }
+      }
+
+      if (showNewDepartmentInput && newDepartmentName.trim() && (user.role === 'admin' || user.role === 'superadmin')) {
+        try {
+          const addedDept = await addNewDepartmentApi(newDepartmentName.trim(), token);
+          finalDepartment = addedDept.name;
+        } catch (err) {
+          setErrorMessage(err.message || 'Failed to add new department');
           setIsSaving(false);
           return;
         }
@@ -120,6 +139,7 @@ export default function UserProfile() {
         body: JSON.stringify({
           ...formData,
           university: finalUniversity,
+          department: finalDepartment,
         }),
       });
 
@@ -490,15 +510,43 @@ export default function UserProfile() {
                   <select
                     id="department"
                     name="department"
-                    value={formData.department}
-                    onChange={handleChange}
+                    value={showNewDepartmentInput ? 'addNew' : formData.department}
+                    onChange={(e) => {
+                      if (e.target.value === 'addNew') {
+                        setShowNewDepartmentInput(true);
+                        setFormData({ ...formData, department: '' });
+                      } else {
+                        setShowNewDepartmentInput(false);
+                        setFormData({ ...formData, department: e.target.value });
+                      }
+                    }}
                     className="mt-2 w-full px-3 py-2 bg-white dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-md text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500 focus:outline-none"
                   >
                     <option value="">Select Department</option>
-                    {DEPARTMENTS.map(dept => (
-                      <option key={dept} value={dept}>{dept}</option>
+                    {departments.map(dept => (
+                      <option key={dept._id || dept.name} value={dept.name}>{dept.name}</option>
                     ))}
+                    {(user.role === 'admin' || user.role === 'superadmin') && (
+                      <option value="addNew" className="font-bold text-red-600">+ Add New Department</option>
+                    )}
                   </select>
+
+                  {showNewDepartmentInput && (
+                    <div className="mt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          placeholder="Type new department name..."
+                          value={newDepartmentName}
+                          onChange={(e) => setNewDepartmentName(e.target.value)}
+                          className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
+                          autoFocus
+                        />
+                        <Plus className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" />
+                      </div>
+                      <p className="text-[10px] text-red-600 mt-1 italic">* Global update</p>
+                    </div>
+                  )}
                 </div>
               </div>
 

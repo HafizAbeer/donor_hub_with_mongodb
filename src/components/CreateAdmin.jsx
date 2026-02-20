@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Shield, User, Mail, Lock, Phone, MapPin, AlertCircle, CheckCircle, Droplet, FileText, Plus } from 'lucide-react';
 import ReactCountryFlag from 'react-country-flag';
-import { DEPARTMENTS } from '@/constants/universityData';
 import { fetchUniversities, addUniversity as addNewUniversityApi } from '@/services/universityService';
+import { fetchDepartments, addDepartment as addNewDepartmentApi } from '@/services/departmentService';
 
 export default function CreateAdmin() {
   const { token } = useAuth();
@@ -36,15 +36,22 @@ export default function CreateAdmin() {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
   const [universities, setUniversities] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [showNewUniversityInput, setShowNewUniversityInput] = useState(false);
   const [newUniversityName, setNewUniversityName] = useState('');
+  const [showNewDepartmentInput, setShowNewDepartmentInput] = useState(false);
+  const [newDepartmentName, setNewDepartmentName] = useState('');
 
   useEffect(() => {
-    const getUniversities = async () => {
-      const data = await fetchUniversities();
-      setUniversities(data);
+    const loadInitialData = async () => {
+      const [uniData, deptData] = await Promise.all([
+        fetchUniversities(),
+        fetchDepartments()
+      ]);
+      setUniversities(uniData);
+      setDepartments(deptData);
     };
-    getUniversities();
+    loadInitialData();
   }, []);
 
   const validateForm = () => {
@@ -92,6 +99,7 @@ export default function CreateAdmin() {
       setApiError('');
       try {
         let finalUniversity = formData.university;
+        let finalDepartment = formData.department;
 
         if (showNewUniversityInput && newUniversityName.trim()) {
           try {
@@ -99,6 +107,17 @@ export default function CreateAdmin() {
             finalUniversity = addedUni.name;
           } catch (err) {
             setApiError(err.message || 'Failed to add new university');
+            setLoading(false);
+            return;
+          }
+        }
+
+        if (showNewDepartmentInput && newDepartmentName.trim()) {
+          try {
+            const addedDept = await addNewDepartmentApi(newDepartmentName.trim(), token);
+            finalDepartment = addedDept.name;
+          } catch (err) {
+            setApiError(err.message || 'Failed to add new department');
             setLoading(false);
             return;
           }
@@ -121,7 +140,7 @@ export default function CreateAdmin() {
             role: formData.role,
             permissions: formData.permissions,
             university: finalUniversity,
-            department: formData.department,
+            department: finalDepartment,
             cnic: formData.cnic,
           })
         });
@@ -376,15 +395,41 @@ export default function CreateAdmin() {
                 <select
                   id="department"
                   name="department"
-                  value={formData.department}
-                  onChange={handleChange}
+                  value={showNewDepartmentInput ? 'addNew' : formData.department}
+                  onChange={(e) => {
+                    if (e.target.value === 'addNew') {
+                      setShowNewDepartmentInput(true);
+                      setFormData({ ...formData, department: '' });
+                    } else {
+                      setShowNewDepartmentInput(false);
+                      setFormData({ ...formData, department: e.target.value });
+                    }
+                  }}
                   className="mt-2 w-full h-10 px-3 bg-white dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-md text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500 focus:outline-none"
                 >
                   <option value="">Select Department</option>
-                  {DEPARTMENTS.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
+                  {departments.map(dept => (
+                    <option key={dept._id || dept.name} value={dept.name}>{dept.name}</option>
                   ))}
+                  <option value="addNew" className="font-bold text-red-600">+ Add New Department</option>
                 </select>
+
+                {showNewDepartmentInput && (
+                  <div className="mt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="relative">
+                      <Input
+                        type="text"
+                        placeholder="Type new department name..."
+                        value={newDepartmentName}
+                        onChange={(e) => setNewDepartmentName(e.target.value)}
+                        className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
+                        autoFocus
+                      />
+                      <Plus className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" />
+                    </div>
+                    <p className="text-[10px] text-red-600 mt-1 italic">* This will be added to the global list.</p>
+                  </div>
+                )}
               </div>
             </div>
 

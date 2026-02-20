@@ -35,3 +35,19 @@ export const addUniversity = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// @desc    Delete a university
+// @route   DELETE /api/universities/:id
+// @access  Private/SuperAdmin
+export const deleteUniversity = async (req, res) => {
+    try {
+        const university = await University.findById(req.params.id);
+        if (!university) {
+            return res.status(404).json({ message: 'University not found' });
+        }
+        await University.findByIdAndDelete(req.params.id);
+        res.json({ message: 'University removed' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

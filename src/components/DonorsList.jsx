@@ -24,8 +24,8 @@ import {
   Plus,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { DEPARTMENTS } from "@/constants/universityData";
 import { fetchUniversities, addUniversity as addNewUniversityApi } from "@/services/universityService";
+import { fetchDepartments, addDepartment as addNewDepartmentApi } from "@/services/departmentService";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import {
@@ -145,8 +145,11 @@ export default function DonorsList() {
   const [admins, setAdmins] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [universities, setUniversities] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [showNewUniversityInput, setShowNewUniversityInput] = useState(false);
   const [newUniversityName, setNewUniversityName] = useState('');
+  const [showNewDepartmentInput, setShowNewDepartmentInput] = useState(false);
+  const [newDepartmentName, setNewDepartmentName] = useState('');
   const [isMarkingDonated, setIsMarkingDonated] = useState(null);
   const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
   const [donationLocation, setDonationLocation] = useState("");
@@ -216,11 +219,15 @@ export default function DonorsList() {
   }, [token]);
 
   useEffect(() => {
-    const getUniversities = async () => {
-      const data = await fetchUniversities();
-      setUniversities(data);
+    const loadInitialData = async () => {
+      const [uniData, deptData] = await Promise.all([
+        fetchUniversities(),
+        fetchDepartments()
+      ]);
+      setUniversities(uniData);
+      setDepartments(deptData);
     };
-    getUniversities();
+    loadInitialData();
   }, []);
 
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -317,6 +324,7 @@ export default function DonorsList() {
     setErrorMessage("");
     try {
       let finalUniversity = editForm.university;
+      let finalDepartment = editForm.department;
 
       if (showNewUniversityInput && newUniversityName.trim()) {
         try {
@@ -324,6 +332,17 @@ export default function DonorsList() {
           finalUniversity = addedUni.name;
         } catch (err) {
           setErrorMessage(err.message || "Failed to add new university");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      if (showNewDepartmentInput && newDepartmentName.trim()) {
+        try {
+          const addedDept = await addNewDepartmentApi(newDepartmentName.trim(), token);
+          finalDepartment = addedDept.name;
+        } catch (err) {
+          setErrorMessage(err.message || "Failed to add new department");
           setIsSubmitting(false);
           return;
         }
@@ -338,6 +357,7 @@ export default function DonorsList() {
         body: JSON.stringify({
           ...editForm,
           university: finalUniversity,
+          department: finalDepartment,
         }),
       });
 
@@ -959,15 +979,41 @@ export default function DonorsList() {
                       <Label htmlFor="edit-department">Department</Label>
                       <select
                         id="edit-department"
-                        value={editForm.department}
-                        onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
-                        className="w-full h-10 px-3 bg-white dark:bg-red-900/30 border border-slate-200 dark:border-slate-800 rounded-md text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500"
+                        value={showNewDepartmentInput ? 'addNew' : editForm.department}
+                        onChange={(e) => {
+                          if (e.target.value === 'addNew') {
+                            setShowNewDepartmentInput(true);
+                            setEditForm({ ...editForm, department: '' });
+                          } else {
+                            setShowNewDepartmentInput(false);
+                            setEditForm({ ...editForm, department: e.target.value });
+                          }
+                        }}
+                        className="w-full h-10 px-3 bg-white dark:bg-red-900/30 border border-slate-200 dark:border-slate-800 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
                       >
                         <option value="">Select Department</option>
-                        {DEPARTMENTS.map(dept => (
-                          <option key={dept} value={dept}>{dept}</option>
+                        {departments.map(dept => (
+                          <option key={dept._id || dept.name} value={dept.name}>{dept.name}</option>
                         ))}
+                        <option value="addNew" className="font-bold text-red-600">+ Add New Department</option>
                       </select>
+
+                      {showNewDepartmentInput && (
+                        <div className="mt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                          <div className="relative">
+                            <Input
+                              type="text"
+                              placeholder="Type new department name..."
+                              value={newDepartmentName}
+                              onChange={(e) => setNewDepartmentName(e.target.value)}
+                              className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
+                              autoFocus
+                            />
+                            <Plus className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" />
+                          </div>
+                          <p className="text-[10px] text-red-600 mt-1 italic">* Global update</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2">

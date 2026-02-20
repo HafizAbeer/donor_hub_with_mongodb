@@ -15,6 +15,7 @@ import AddUser from "./components/AddUser";
 import DonorsList from "./components/DonorsList";
 import AdminsList from "./components/AdminsList";
 import UserProfile from "./components/UserProfile";
+import SystemManagement from "./components/SystemManagement";
 import Settings from "./pages/Settings";
 import BloodRequest from "./pages/BloodRequest";
 import "./App.css";
@@ -109,6 +110,14 @@ function PrivateRoutes() {
           element={
             <ProtectedRoute>
               <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/system-management"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <SystemManagement />
             </ProtectedRoute>
           }
         />
