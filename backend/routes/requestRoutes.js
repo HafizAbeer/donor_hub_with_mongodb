@@ -10,7 +10,7 @@ router.route('/')
     .get(protect, getRequests)
     .post(protect, createRequest);
 
-router.route('/:id')
+router.route('/:id([0-9a-fA-F]{24})')
     .put(protect, updateRequest)
     .delete(protect, deleteRequest);
 

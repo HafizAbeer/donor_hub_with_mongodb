@@ -86,8 +86,6 @@ const createRequest = async (req, res) => {
 
 const updateRequest = async (req, res) => {
     try {
-        if (req.params.id === 'bulk') return; // Handled by bulk route
-
         const request = await BloodRequest.findById(req.params.id);
 
         if (request) {
@@ -117,8 +115,6 @@ const updateRequest = async (req, res) => {
 
 const deleteRequest = async (req, res) => {
     try {
-        if (req.params.id === 'bulk') return; // Handled by bulk route
-
         const request = await BloodRequest.findById(req.params.id);
 
         if (request) {
