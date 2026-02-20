@@ -3,9 +3,11 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UserCircle, Droplet, Calendar, MapPin, Phone, Mail, Save, Heart, Award, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { UserCircle, Droplet, Calendar, MapPin, Phone, Mail, Save, Heart, Award, TrendingUp, Clock, CheckCircle, Plus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ReactCountryFlag from 'react-country-flag';
+import { DEPARTMENTS } from '@/constants/universityData';
+import { fetchUniversities, addUniversity as addNewUniversityApi } from '@/services/universityService';
 import {
   LineChart,
   Line,
@@ -27,6 +29,17 @@ export default function UserProfile() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [universities, setUniversities] = useState([]);
+  const [showNewUniversityInput, setShowNewUniversityInput] = useState(false);
+  const [newUniversityName, setNewUniversityName] = useState('');
+
+  useEffect(() => {
+    const getUniversities = async () => {
+      const data = await fetchUniversities();
+      setUniversities(data);
+    };
+    getUniversities();
+  }, []);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -85,13 +98,29 @@ export default function UserProfile() {
 
     setIsSaving(true);
     try {
+      let finalUniversity = formData.university;
+
+      if (showNewUniversityInput && newUniversityName.trim() && (user.role === 'admin' || user.role === 'superadmin')) {
+        try {
+          const addedUni = await addNewUniversityApi(newUniversityName.trim(), token);
+          finalUniversity = addedUni.name;
+        } catch (err) {
+          setErrorMessage(err.message || 'Failed to add new university');
+          setIsSaving(false);
+          return;
+        }
+      }
+
       const res = await fetch(`/api/users/${user._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          university: finalUniversity,
+        }),
       });
 
       if (res.ok) {
@@ -415,27 +444,61 @@ export default function UserProfile() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <Label htmlFor="university" className="text-red-900 dark:text-red-100">University</Label>
-                  <Input
-                    type="text"
+                  <select
                     id="university"
                     name="university"
-                    value={formData.university}
-                    onChange={handleChange}
-                    placeholder="Riphah International University"
-                    className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
-                  />
+                    value={showNewUniversityInput ? 'addNew' : formData.university}
+                    onChange={(e) => {
+                      if (e.target.value === 'addNew') {
+                        setShowNewUniversityInput(true);
+                        setFormData({ ...formData, university: '' });
+                      } else {
+                        setShowNewUniversityInput(false);
+                        setFormData({ ...formData, university: e.target.value });
+                      }
+                    }}
+                    className="mt-2 w-full px-3 py-2 bg-white dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-md text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500 focus:outline-none"
+                  >
+                    <option value="">Select University</option>
+                    {universities.map(uni => (
+                      <option key={uni._id || uni.name} value={uni.name}>{uni.name}</option>
+                    ))}
+                    {(user.role === 'admin' || user.role === 'superadmin') && (
+                      <option value="addNew" className="font-bold text-red-600">+ Add New University</option>
+                    )}
+                  </select>
+
+                  {showNewUniversityInput && (
+                    <div className="mt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          placeholder="Type new university name..."
+                          value={newUniversityName}
+                          onChange={(e) => setNewUniversityName(e.target.value)}
+                          className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
+                          autoFocus
+                        />
+                        <Plus className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" />
+                      </div>
+                      <p className="text-[10px] text-red-600 mt-1 italic">* Global update</p>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="department" className="text-red-900 dark:text-red-100">Department</Label>
-                  <Input
-                    type="text"
+                  <select
                     id="department"
                     name="department"
                     value={formData.department}
                     onChange={handleChange}
-                    placeholder="Computing"
-                    className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
-                  />
+                    className="mt-2 w-full px-3 py-2 bg-white dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-md text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500 focus:outline-none"
+                  >
+                    <option value="">Select Department</option>
+                    {DEPARTMENTS.map(dept => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

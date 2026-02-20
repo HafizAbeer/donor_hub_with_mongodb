@@ -133,7 +133,7 @@ export default function DonationModals({
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-red-950 p-6 text-left align-middle shadow-xl transition-all border border-red-100 dark:border-red-900">
+                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-red-950 p-6 text-left align-middle shadow-xl transition-all border border-red-100 dark:border-red-900 max-h-[90vh] overflow-y-auto">
                                     <div className="flex items-center justify-between mb-6">
                                         <Dialog.Title as="h3" className="text-xl font-bold text-red-900 dark:text-red-100">
                                             Edit Donation

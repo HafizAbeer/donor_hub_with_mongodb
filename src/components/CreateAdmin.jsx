@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Shield, User, Mail, Lock, Phone, MapPin, AlertCircle, CheckCircle, Droplet, FileText } from 'lucide-react';
+import { Shield, User, Mail, Lock, Phone, MapPin, AlertCircle, CheckCircle, Droplet, FileText, Plus } from 'lucide-react';
 import ReactCountryFlag from 'react-country-flag';
+import { DEPARTMENTS } from '@/constants/universityData';
+import { fetchUniversities, addUniversity as addNewUniversityApi } from '@/services/universityService';
 
 export default function CreateAdmin() {
   const { token } = useAuth();
@@ -33,6 +35,17 @@ export default function CreateAdmin() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
+  const [universities, setUniversities] = useState([]);
+  const [showNewUniversityInput, setShowNewUniversityInput] = useState(false);
+  const [newUniversityName, setNewUniversityName] = useState('');
+
+  useEffect(() => {
+    const getUniversities = async () => {
+      const data = await fetchUniversities();
+      setUniversities(data);
+    };
+    getUniversities();
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -78,6 +91,19 @@ export default function CreateAdmin() {
       setLoading(true);
       setApiError('');
       try {
+        let finalUniversity = formData.university;
+
+        if (showNewUniversityInput && newUniversityName.trim()) {
+          try {
+            const addedUni = await addNewUniversityApi(newUniversityName.trim(), token);
+            finalUniversity = addedUni.name;
+          } catch (err) {
+            setApiError(err.message || 'Failed to add new university');
+            setLoading(false);
+            return;
+          }
+        }
+
         const res = await fetch('/api/users', {
           method: 'POST',
           headers: {
@@ -94,7 +120,7 @@ export default function CreateAdmin() {
             address: formData.address,
             role: formData.role,
             permissions: formData.permissions,
-            university: formData.university,
+            university: finalUniversity,
             department: formData.department,
             cnic: formData.cnic,
           })
@@ -305,28 +331,60 @@ export default function CreateAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
               <div>
                 <Label htmlFor="university" className="text-red-900 dark:text-red-100">University (Optional)</Label>
-                <Input
-                  type="text"
+                <select
                   id="university"
                   name="university"
-                  value={formData.university}
-                  onChange={handleChange}
-                  placeholder="Riphah International University"
-                  className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
-                />
+                  value={showNewUniversityInput ? 'addNew' : formData.university}
+                  onChange={(e) => {
+                    if (e.target.value === 'addNew') {
+                      setShowNewUniversityInput(true);
+                      setFormData({ ...formData, university: '' });
+                    } else {
+                      setShowNewUniversityInput(false);
+                      setFormData({ ...formData, university: e.target.value });
+                    }
+                  }}
+                  className="mt-2 w-full h-10 px-3 bg-white dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-md text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500 focus:outline-none"
+                >
+                  <option value="">Select University</option>
+                  {universities.map(uni => (
+                    <option key={uni._id || uni.name} value={uni.name}>{uni.name}</option>
+                  ))}
+                  <option value="addNew" className="font-bold text-red-600">+ Add New University</option>
+                </select>
+
+                {showNewUniversityInput && (
+                  <div className="mt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="relative">
+                      <Input
+                        type="text"
+                        placeholder="Type new university name..."
+                        value={newUniversityName}
+                        onChange={(e) => setNewUniversityName(e.target.value)}
+                        className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
+                        autoFocus
+                      />
+                      <Plus className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" />
+                    </div>
+                    <p className="text-[10px] text-red-600 mt-1 italic">* This will be added to the global list.</p>
+                  </div>
+                )}
               </div>
 
               <div>
                 <Label htmlFor="department" className="text-red-900 dark:text-red-100">Department (Optional)</Label>
-                <Input
-                  type="text"
+                <select
                   id="department"
                   name="department"
                   value={formData.department}
                   onChange={handleChange}
-                  placeholder="Computing"
-                  className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
-                />
+                  className="mt-2 w-full h-10 px-3 bg-white dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-md text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500 focus:outline-none"
+                >
+                  <option value="">Select Department</option>
+                  {DEPARTMENTS.map(dept => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
               </div>
             </div>
 

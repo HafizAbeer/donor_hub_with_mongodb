@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
@@ -8,9 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Dialog, Transition } from '@headlessui/react';
 import {
   UserPlus, Calendar, Droplet, MapPin, Mail, Phone, User,
-  AlertCircle, CheckCircle, FileText, Heart, Home, X, CheckCircle2, Info
+  AlertCircle, CheckCircle, FileText, Heart, Home, X, CheckCircle2, Info, Plus
 } from 'lucide-react';
 import ReactCountryFlag from 'react-country-flag';
+import { DEPARTMENTS } from '@/constants/universityData';
+import { fetchUniversities, addUniversity as addNewUniversityApi } from '@/services/universityService';
 
 export default function AddUser() {
   const [formData, setFormData] = useState({
@@ -39,6 +41,17 @@ export default function AddUser() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [universities, setUniversities] = useState([]);
+  const [showNewUniversityInput, setShowNewUniversityInput] = useState(false);
+  const [newUniversityName, setNewUniversityName] = useState('');
+
+  useEffect(() => {
+    const getUniversities = async () => {
+      const data = await fetchUniversities();
+      setUniversities(data);
+    };
+    getUniversities();
+  }, []);
 
   const navigate = useNavigate();
   const { token } = useAuth();
@@ -79,8 +92,22 @@ export default function AddUser() {
     if (validateForm()) {
       setIsSubmitting(true);
       try {
+        let finalUniversity = formData.university;
+
+        if (showNewUniversityInput && newUniversityName.trim()) {
+          try {
+            const addedUni = await addNewUniversityApi(newUniversityName.trim(), token);
+            finalUniversity = addedUni.name;
+          } catch (err) {
+            setErrorMessage(err.message || 'Failed to add new university');
+            setIsSubmitting(false);
+            return;
+          }
+        }
+
         const userData = {
           ...formData,
+          university: finalUniversity,
           role: 'user',
           lastDonationDate: formData.lastDonation || null,
         };
@@ -299,26 +326,60 @@ export default function AddUser() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div className="space-y-2">
                 <Label htmlFor="university" className="text-red-900 dark:text-red-100">University (Optional)</Label>
-                <Input
+                <select
                   id="university"
                   name="university"
-                  value={formData.university}
-                  onChange={handleChange}
-                  placeholder="Riphah International University"
-                  className="bg-white dark:bg-red-900/10 border-red-200 dark:border-red-800"
-                />
+                  value={showNewUniversityInput ? 'addNew' : formData.university}
+                  onChange={(e) => {
+                    if (e.target.value === 'addNew') {
+                      setShowNewUniversityInput(true);
+                      setFormData({ ...formData, university: '' });
+                    } else {
+                      setShowNewUniversityInput(false);
+                      setFormData({ ...formData, university: e.target.value });
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-white dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-md text-red-900 dark:text-red-100 focus:ring-2 focus:ring-red-500 outline-none"
+                >
+                  <option value="" className="dark:bg-slate-900">Select University</option>
+                  {universities.map(uni => (
+                    <option key={uni._id || uni.name} value={uni.name} className="dark:bg-slate-900">{uni.name}</option>
+                  ))}
+                  <option value="addNew" className="font-bold text-red-600 dark:bg-slate-900">+ Add New University</option>
+                </select>
+
+                {showNewUniversityInput && (
+                  <div className="mt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="relative">
+                      <Input
+                        type="text"
+                        placeholder="Type new university name..."
+                        value={newUniversityName}
+                        onChange={(e) => setNewUniversityName(e.target.value)}
+                        className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
+                        autoFocus
+                      />
+                      <Plus className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" />
+                    </div>
+                    <p className="text-[10px] text-red-600 mt-1 italic">* This will be added to the global list.</p>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="department" className="text-red-900 dark:text-red-100">Department (Optional)</Label>
-                <Input
+                <select
                   id="department"
                   name="department"
                   value={formData.department}
                   onChange={handleChange}
-                  placeholder="Computing"
-                  className="bg-white dark:bg-red-900/10 border-red-200 dark:border-red-800"
-                />
+                  className="w-full px-3 py-2 bg-white dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-md text-red-900 dark:text-red-100 focus:ring-2 focus:ring-red-500 outline-none"
+                >
+                  <option value="" className="dark:bg-slate-900">Select Department</option>
+                  {DEPARTMENTS.map(dept => (
+                    <option key={dept} value={dept} className="dark:bg-slate-900">{dept}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="space-y-2">

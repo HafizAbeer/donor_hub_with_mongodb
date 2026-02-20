@@ -17,8 +17,12 @@ import {
     AlertTriangle,
     Droplet,
     FileText,
+    MapPin,
+    Plus,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { DEPARTMENTS } from "@/constants/universityData";
+import { fetchUniversities, addUniversity as addNewUniversityApi } from "@/services/universityService";
 
 const AdminsList = () => {
     const { token, user: currentUser } = useAuth();
@@ -35,6 +39,17 @@ const AdminsList = () => {
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [universities, setUniversities] = useState([]);
+    const [showNewUniversityInput, setShowNewUniversityInput] = useState(false);
+    const [newUniversityName, setNewUniversityName] = useState('');
+
+    useEffect(() => {
+        const getUniversities = async () => {
+            const data = await fetchUniversities();
+            setUniversities(data);
+        };
+        getUniversities();
+    }, []);
 
     const [editForm, setEditForm] = useState({
         name: "",
@@ -107,14 +122,31 @@ const AdminsList = () => {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setErrorMessage("");
         try {
+            let finalUniversity = editForm.university;
+
+            if (showNewUniversityInput && newUniversityName.trim()) {
+                try {
+                    const addedUni = await addNewUniversityApi(newUniversityName.trim(), token);
+                    finalUniversity = addedUni.name;
+                } catch (err) {
+                    setErrorMessage(err.message || "Failed to add new university");
+                    setIsSubmitting(false);
+                    return;
+                }
+            }
+
             const res = await fetch(`/api/users/${adminToEdit._id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(editForm),
+                body: JSON.stringify({
+                    ...editForm,
+                    university: finalUniversity,
+                }),
             });
 
             if (res.ok) {
@@ -260,7 +292,7 @@ const AdminsList = () => {
 
             {isEditModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <Card className="w-full max-w-md p-6 bg-white dark:bg-red-950 border-red-200 relative">
+                    <Card className="w-full max-w-md p-6 bg-white dark:bg-red-950 border-red-200 relative max-h-[90vh] overflow-y-auto">
                         <button onClick={() => setIsEditModalOpen(false)} className="absolute top-4 right-4 text-gray-500"><X /></button>
                         {showSuccess ? (
                             <div className="text-center py-8">
@@ -314,21 +346,55 @@ const AdminsList = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <Label>University</Label>
-                                        <Input
-                                            value={editForm.university}
-                                            onChange={(e) => setEditForm({ ...editForm, university: e.target.value })}
-                                            placeholder="Riphah"
-                                            className="bg-white dark:bg-red-950/30 border-slate-200 dark:border-red-800 text-red-900 dark:text-red-100"
-                                        />
+                                        <select
+                                            value={showNewUniversityInput ? 'addNew' : editForm.university}
+                                            onChange={(e) => {
+                                                if (e.target.value === 'addNew') {
+                                                    setShowNewUniversityInput(true);
+                                                    setEditForm({ ...editForm, university: '' });
+                                                } else {
+                                                    setShowNewUniversityInput(false);
+                                                    setEditForm({ ...editForm, university: e.target.value });
+                                                }
+                                            }}
+                                            className="w-full h-10 px-3 bg-white dark:bg-red-950/30 border border-slate-200 dark:border-red-800 rounded-md text-red-900 dark:text-red-100 focus:outline-none focus:ring-1 focus:ring-red-500"
+                                        >
+                                            <option value="">Select University</option>
+                                            {universities.map(uni => (
+                                                <option key={uni._id || uni.name} value={uni.name}>{uni.name}</option>
+                                            ))}
+                                            <option value="addNew" className="font-bold text-red-600">+ Add New University</option>
+                                        </select>
+
+                                        {showNewUniversityInput && (
+                                            <div className="mt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                                                <div className="relative">
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="Type new university name..."
+                                                        value={newUniversityName}
+                                                        onChange={(e) => setNewUniversityName(e.target.value)}
+                                                        className="pr-10 bg-white dark:bg-red-950/50 border-red-400 focus:border-red-600"
+                                                        autoFocus
+                                                    />
+                                                    <Plus className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" />
+                                                </div>
+                                                <p className="text-[10px] text-red-600 mt-1 italic">* Global update</p>
+                                            </div>
+                                        )}
                                     </div>
                                     <div>
                                         <Label>Department</Label>
-                                        <Input
+                                        <select
                                             value={editForm.department}
                                             onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
-                                            placeholder="Computing"
-                                            className="bg-white dark:bg-red-950/30 border-slate-200 dark:border-red-800 text-red-900 dark:text-red-100"
-                                        />
+                                            className="w-full h-10 px-3 bg-white dark:bg-red-950/30 border border-slate-200 dark:border-red-800 rounded-md text-red-900 dark:text-red-100 focus:outline-none focus:ring-1 focus:ring-red-500"
+                                        >
+                                            <option value="">Select Department</option>
+                                            {DEPARTMENTS.map(dept => (
+                                                <option key={dept} value={dept}>{dept}</option>
+                                            ))}
+                                        </select>
                                     </div>
                                 </div>
                                 <div className="space-y-3">

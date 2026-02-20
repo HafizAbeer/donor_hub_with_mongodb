@@ -92,6 +92,7 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        console.log("Login Request Body:", req.body);
         const user = await User.findOne({ email });
         console.log("Login Attempt:", email);
         console.log("User Found:", !!user);
@@ -130,9 +131,11 @@ const loginUser = async (req, res) => {
                 token: generateToken(user._id),
             });
         } else {
+            console.log("Login Failed: Invalid credentials");
             res.status(401).json({ message: 'Invalid email or password' });
         }
     } catch (error) {
+        console.error("Login Controller Error:", error);
         res.status(500).json({ message: error.message });
     }
 };
