@@ -63,7 +63,7 @@ export default function Signup() {
       const userData = {
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
+        phone: `+92${formData.phone}`,
         password: formData.password,
         bloodGroup: formData.bloodGroup,
         city: formData.city,
@@ -163,7 +163,12 @@ export default function Signup() {
                   id="phone"
                   name="phone"
                   value={formData.phone}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "");
+                    if (val.length <= 10) {
+                      setFormData({ ...formData, phone: val });
+                    }
+                  }}
                   placeholder="3001234567"
                   className="flex-1 bg-transparent text-white border-0 focus:ring-0"
                   required

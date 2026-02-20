@@ -133,7 +133,7 @@ export default function CreateAdmin() {
             name: formData.name,
             email: formData.email,
             password: formData.password,
-            phone: formData.phone,
+            phone: `+92${formData.phone}`,
             bloodGroup: formData.bloodGroup,
             city: formData.city,
             address: formData.address,
@@ -269,7 +269,12 @@ export default function CreateAdmin() {
                   id="phone"
                   name="phone"
                   value={formData.phone}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "");
+                    if (val.length <= 10) {
+                      setFormData({ ...formData, phone: val });
+                    }
+                  }}
                   placeholder="3000000000"
                   className="flex-1 bg-transparent border-0 focus:ring-0 focus:border-0 text-red-900 dark:text-red-100"
                   required

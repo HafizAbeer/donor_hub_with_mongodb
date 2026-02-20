@@ -65,7 +65,7 @@ export default function UserProfile() {
       setFormData({
         name: user.name || '',
         email: user.email || '',
-        phone: user.phone || '',
+        phone: user.phone ? user.phone.replace('+92', '') : '',
         bloodGroup: user.bloodGroup || '',
         dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '',
         address: user.address || '',
@@ -138,6 +138,7 @@ export default function UserProfile() {
         },
         body: JSON.stringify({
           ...formData,
+          phone: `+92${formData.phone}`,
           university: finalUniversity,
           department: finalDepartment,
         }),
@@ -399,7 +400,12 @@ export default function UserProfile() {
                     id="phone"
                     name="phone"
                     value={formData.phone}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      if (val.length <= 10) {
+                        setFormData({ ...formData, phone: val });
+                      }
+                    }}
                     placeholder="3000000000"
                     className="flex-1 bg-transparent border-0 focus:ring-0 focus:border-0 text-red-900 dark:text-red-100"
                     required

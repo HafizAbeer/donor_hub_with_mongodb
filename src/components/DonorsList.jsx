@@ -26,7 +26,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchUniversities, addUniversity as addNewUniversityApi } from "@/services/universityService";
 import { fetchDepartments, addDepartment as addNewDepartmentApi } from "@/services/departmentService";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, Transition, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { Fragment } from "react";
 import {
   BarChart,
@@ -289,7 +289,7 @@ export default function DonorsList() {
     setDonorToEdit(donor);
     setEditForm({
       name: donor.name,
-      phone: donor.phone,
+      phone: donor.phone ? donor.phone.replace('+92', '') : "",
       city: donor.city,
       address: donor.address || "",
       bloodGroup: donor.bloodGroup,
@@ -302,7 +302,7 @@ export default function DonorsList() {
       gender: donor.gender || "",
       dateOfBirth: donor.dateOfBirth ? new Date(donor.dateOfBirth).toISOString().split('T')[0] : "",
       emergencyContact: donor.emergencyContact || "",
-      emergencyPhone: donor.emergencyPhone || "",
+      emergencyPhone: donor.emergencyPhone ? donor.emergencyPhone.replace('+92', '') : "",
       medicalConditions: donor.medicalConditions || "",
       allergies: donor.allergies || "",
     });
@@ -356,6 +356,8 @@ export default function DonorsList() {
         },
         body: JSON.stringify({
           ...editForm,
+          phone: `+92${editForm.phone}`,
+          emergencyPhone: editForm.emergencyPhone ? `+92${editForm.emergencyPhone}` : '',
           university: finalUniversity,
           department: finalDepartment,
         }),
@@ -920,8 +922,14 @@ export default function DonorsList() {
                       <Input
                         id="edit-phone"
                         value={editForm.phone}
-                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          if (val.length <= 10) {
+                            setEditForm({ ...editForm, phone: val });
+                          }
+                        }}
                         required
+                        placeholder="3000000000"
                       />
                     </div>
                     <div className="space-y-2">
@@ -1058,7 +1066,13 @@ export default function DonorsList() {
                       <Input
                         id="edit-ephone"
                         value={editForm.emergencyPhone}
-                        onChange={(e) => setEditForm({ ...editForm, emergencyPhone: e.target.value })}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          if (val.length <= 10) {
+                            setEditForm({ ...editForm, emergencyPhone: val });
+                          }
+                        }}
+                        placeholder="3001234567"
                       />
                     </div>
                   </div>
@@ -1188,22 +1202,12 @@ export default function DonorsList() {
       <Transition appear show={isDetailsModalOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-50"
+          className="relative z-50 focus:outline-none"
           onClose={() => setIsDetailsModalOpen(false)}
         >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
-          </Transition.Child>
+          <DialogBackdrop className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
 
-          <div className="fixed inset-0 overflow-y-auto">
+          <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4">
               <Transition.Child
                 as={Fragment}
@@ -1214,7 +1218,7 @@ export default function DonorsList() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-red-100 dark:border-red-900 shadow-2xl transition-all max-h-[90vh] overflow-y-auto">
+                <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-red-100 dark:border-red-900 shadow-2xl transition-all max-h-[90vh] overflow-y-auto">
                   {donorToShow && (
                     <div className="relative">
                       <div className="h-32 bg-gradient-to-r from-red-600 to-pink-600 relative">
@@ -1384,7 +1388,7 @@ export default function DonorsList() {
                       </div>
                     </div>
                   )}
-                </Dialog.Panel>
+                </DialogPanel>
               </Transition.Child>
             </div>
           </div>
@@ -1437,25 +1441,15 @@ export default function DonorsList() {
       <Transition appear show={showSuccess || !!errorMessage} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-[70]"
+          className="relative z-[70] focus:outline-none"
           onClose={() => {
             setShowSuccess(false);
             setErrorMessage("");
           }}
         >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-xs" />
-          </Transition.Child>
+          <DialogBackdrop className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity" />
 
-          <div className="fixed inset-0 overflow-y-auto">
+          <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4">
               <Transition.Child
                 as={Fragment}
@@ -1466,7 +1460,7 @@ export default function DonorsList() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className={`w-full max-w-sm transform overflow-hidden rounded-3xl p-6 text-center shadow-2xl transition-all border ${errorMessage
+                <DialogPanel className={`w-full max-w-sm transform overflow-hidden rounded-3xl p-6 text-center shadow-2xl transition-all border ${errorMessage
                   ? 'bg-rose-50 dark:bg-rose-950 border-rose-200 dark:border-rose-900'
                   : 'bg-white dark:bg-slate-900 border-red-100 dark:border-red-900'
                   }`}>
@@ -1500,7 +1494,7 @@ export default function DonorsList() {
                   >
                     Continue
                   </Button>
-                </Dialog.Panel>
+                </DialogPanel>
               </Transition.Child>
             </div>
           </div>

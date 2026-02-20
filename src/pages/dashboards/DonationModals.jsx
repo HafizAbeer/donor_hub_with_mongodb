@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, Transition, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { X, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -109,20 +109,10 @@ export default function DonationModals({
     return (
         <>
             <Transition appear show={isEditModalOpen} as={Fragment}>
-                <Dialog as="div" className="relative z-50" onClose={() => !isSubmitting && setIsEditModalOpen(false)}>
-                    <Transition.Child
-                        as={Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0"
-                        enterTo="opacity-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                    >
-                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                    </Transition.Child>
+                <Dialog as="div" className="relative z-50 focus:outline-none" onClose={() => !isSubmitting && setIsEditModalOpen(false)}>
+                    <DialogBackdrop className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
 
-                    <div className="fixed inset-0 overflow-y-auto">
+                    <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-4">
                             <Transition.Child
                                 as={Fragment}
@@ -133,11 +123,11 @@ export default function DonationModals({
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-red-950 p-6 text-left align-middle shadow-xl transition-all border border-red-100 dark:border-red-900 max-h-[90vh] overflow-y-auto">
+                                <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-red-950 p-6 text-left align-middle shadow-xl transition-all border border-red-100 dark:border-red-900 max-h-[90vh] overflow-y-auto">
                                     <div className="flex items-center justify-between mb-6">
-                                        <Dialog.Title as="h3" className="text-xl font-bold text-red-900 dark:text-red-100">
+                                        <DialogTitle as="h3" className="text-xl font-bold text-red-900 dark:text-red-100">
                                             Edit Donation
-                                        </Dialog.Title>
+                                        </DialogTitle>
                                         <button
                                             onClick={() => setIsEditModalOpen(false)}
                                             className="text-red-400 hover:text-red-600 transition-colors"
@@ -204,7 +194,7 @@ export default function DonationModals({
                                             </Button>
                                         </div>
                                     </form>
-                                </Dialog.Panel>
+                                </DialogPanel>
                             </Transition.Child>
                         </div>
                     </div>
@@ -212,20 +202,10 @@ export default function DonationModals({
             </Transition>
 
             <Transition appear show={isDeleteModalOpen} as={Fragment}>
-                <Dialog as="div" className="relative z-50" onClose={() => !isSubmitting && setIsDeleteModalOpen(false)}>
-                    <Transition.Child
-                        as={Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0"
-                        enterTo="opacity-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                    >
-                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                    </Transition.Child>
+                <Dialog as="div" className="relative z-50 focus:outline-none" onClose={() => !isSubmitting && setIsDeleteModalOpen(false)}>
+                    <DialogBackdrop className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
 
-                    <div className="fixed inset-0 overflow-y-auto">
+                    <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-4">
                             <Transition.Child
                                 as={Fragment}
@@ -236,10 +216,10 @@ export default function DonationModals({
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-sm transform overflow-hidden rounded-2xl bg-white dark:bg-red-950 p-6 text-left align-middle shadow-xl transition-all border border-red-100 dark:border-red-900">
+                                <DialogPanel className="w-full max-w-sm transform overflow-hidden rounded-2xl bg-white dark:bg-red-950 p-6 text-left align-middle shadow-xl transition-all border border-red-100 dark:border-red-900">
                                     <div className="flex items-center gap-3 mb-4 text-rose-600">
                                         <AlertTriangle className="w-8 h-8" />
-                                        <Dialog.Title as="h3" className="text-xl font-bold">Delete Record?</Dialog.Title>
+                                        <DialogTitle as="h3" className="text-xl font-bold">Delete Record?</DialogTitle>
                                     </div>
                                     <p className="text-sm text-red-700 dark:text-red-300 mb-6">
                                         Are you sure you want to delete this donation record for{" "}
@@ -267,7 +247,7 @@ export default function DonationModals({
                                             {isSubmitting ? "Deleting..." : "Yes, Delete"}
                                         </Button>
                                     </div>
-                                </Dialog.Panel>
+                                </DialogPanel>
                             </Transition.Child>
                         </div>
                     </div>
@@ -275,28 +255,18 @@ export default function DonationModals({
             </Transition>
 
             <Transition appear show={showSuccess} as={Fragment}>
-                <Dialog as="div" className="relative z-[60]" onClose={() => setShowSuccess(false)}>
-                    <Transition.Child
-                        as={Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0"
-                        enterTo="opacity-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                    >
-                        <div className="fixed inset-0 bg-black/25 backdrop-blur-sm" />
-                    </Transition.Child>
+                <Dialog as="div" className="relative z-[60] focus:outline-none" onClose={() => setShowSuccess(false)}>
+                    <DialogBackdrop className="fixed inset-0 bg-black/25 backdrop-blur-sm transition-opacity" />
 
-                    <div className="fixed inset-0 overflow-y-auto">
+                    <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-4">
-                            <Dialog.Panel className="w-full max-w-sm transform overflow-hidden rounded-2xl bg-white dark:bg-slate-900 p-6 text-center shadow-xl transition-all border border-red-100">
+                            <DialogPanel className="w-full max-w-sm transform overflow-hidden rounded-2xl bg-white dark:bg-slate-900 p-6 text-center shadow-xl transition-all border border-red-100">
                                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <CheckCircle2 className="w-10 h-10 text-green-600" />
                                 </div>
                                 <h3 className="text-lg font-bold text-red-900 dark:text-red-100 mb-2">Success!</h3>
                                 <p className="text-sm text-slate-600 dark:text-slate-400">{successMessage}</p>
-                            </Dialog.Panel>
+                            </DialogPanel>
                         </div>
                     </div>
                 </Dialog>

@@ -113,24 +113,18 @@ const updateRequest = async (req, res) => {
     }
 };
 
-const deleteRequest = async (req, res) => {
+const deleteAllRequests = async (req, res) => {
     try {
-        const request = await BloodRequest.findById(req.params.id);
-
-        if (request) {
-            if (req.user.role !== 'admin' && req.user.role !== 'superadmin' && request.createdBy.toString() !== req.user._id.toString()) {
-                return res.status(401).json({ message: 'Not authorized' });
-            }
-
-            await request.deleteOne();
-            res.json({ message: 'Request removed' });
-        } else {
-            res.status(404).json({ message: 'Request not found' });
+        if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+            return res.status(401).json({ message: 'Not authorized' });
         }
+
+        await BloodRequest.deleteMany({});
+        res.json({ message: 'All blood requests removed' });
     } catch (error) {
-        console.error('deleteRequest error:', error);
+        console.error('deleteAllRequests error:', error);
         res.status(500).json({ message: error.message });
     }
 };
 
-export { getRequests, createRequest, updateRequest, deleteRequest };
+export { getRequests, createRequest, updateRequest, deleteRequest, deleteAllRequests };

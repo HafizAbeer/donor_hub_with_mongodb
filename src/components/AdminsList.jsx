@@ -61,6 +61,7 @@ const AdminsList = () => {
     const [editForm, setEditForm] = useState({
         name: "",
         email: "",
+        phone: "",
         role: "",
         permissions: {
             manageUsers: false,
@@ -112,6 +113,7 @@ const AdminsList = () => {
         setEditForm({
             name: admin.name,
             email: admin.email,
+            phone: admin.phone ? admin.phone.replace('+92', '') : "",
             role: admin.role,
             permissions: admin.permissions || {
                 manageUsers: false,
@@ -164,6 +166,7 @@ const AdminsList = () => {
                 },
                 body: JSON.stringify({
                     ...editForm,
+                    phone: `+92${editForm.phone}`,
                     university: finalUniversity,
                     department: finalDepartment,
                 }),
@@ -326,6 +329,26 @@ const AdminsList = () => {
                                 <div>
                                     <Label>Name</Label>
                                     <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} required />
+                                </div>
+                                <div>
+                                    <Label>Phone Number</Label>
+                                    <div className="flex items-center bg-white dark:bg-red-950/30 border border-slate-200 dark:border-red-800 rounded-md focus-within:ring-1 focus-within:ring-red-500">
+                                        <div className="flex items-center gap-1.5 px-3 py-2 border-r border-slate-200 dark:border-red-800">
+                                            <span className="text-sm font-medium text-red-900 dark:text-red-100">+92</span>
+                                        </div>
+                                        <Input
+                                            value={editForm.phone}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/\D/g, "");
+                                                if (val.length <= 10) {
+                                                    setEditForm({ ...editForm, phone: val });
+                                                }
+                                            }}
+                                            placeholder="3000000000"
+                                            className="border-0 focus:ring-0 shadow-none bg-transparent"
+                                            required
+                                        />
+                                    </div>
                                 </div>
                                 <div>
                                     <Label>Account Role</Label>

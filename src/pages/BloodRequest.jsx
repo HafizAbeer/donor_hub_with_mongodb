@@ -120,6 +120,7 @@ export default function BloodRequest() {
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
@@ -336,7 +337,34 @@ export default function BloodRequest() {
     };
 
     const handleClearAll = async () => {
-        if (!confirm("Clear all is not fully supported via API yet. Delete individually.")) return;
+        setIsBulkDeleteModalOpen(true);
+    };
+
+    const handleBulkDeleteConfirm = async () => {
+        try {
+            setIsSubmitting(true);
+            const res = await fetch('/api/requests/bulk', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                setRecords([]);
+                setIsBulkDeleteModalOpen(false);
+                setSuccessMessage("All blood requests deleted successfully.");
+                setIsSuccessModalOpen(true);
+                setTimeout(() => setIsSuccessModalOpen(false), 2000);
+            } else {
+                const data = await res.json();
+                alert(data.message || "Failed to delete all requests");
+            }
+        } catch (error) {
+            console.error("Failed to clear all", error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleDelete = async (id) => {
@@ -683,6 +711,44 @@ export default function BloodRequest() {
                                     className="bg-red-600 hover:bg-red-700"
                                 >
                                     {isSubmitting ? "Deleting..." : "Yes, Delete Record"}
+                                </Button>
+                            </div>
+                        </Card>
+                    </div>
+                )
+            }
+
+            {
+                isBulkDeleteModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                        <Card className="w-full max-w-md p-6 bg-white border-red-200 shadow-2xl animate-in zoom-in-95 duration-200">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <AlertTriangle className="w-6 h-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-red-900 text-left">Clear All Requests?</h3>
+                                    <p className="text-sm text-red-600 text-left">This action cannot be undone.</p>
+                                </div>
+                            </div>
+                            <p className="text-red-800 mb-6 text-sm">
+                                Are you sure you want to delete <span className="font-bold underline text-red-900">ALL</span> blood requests? This will permanently remove all records from the system.
+                            </p>
+                            <div className="flex justify-end gap-3">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsBulkDeleteModalOpen(false)}
+                                    disabled={isSubmitting}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    variant="destructive"
+                                    onClick={handleBulkDeleteConfirm}
+                                    disabled={isSubmitting}
+                                    className="bg-red-600 hover:bg-red-700"
+                                >
+                                    {isSubmitting ? "Clearing..." : "Yes, Clear Everything"}
                                 </Button>
                             </div>
                         </Card>

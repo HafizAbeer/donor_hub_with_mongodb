@@ -19,7 +19,7 @@ import {
   UserCheck,
   AlertCircle,
 } from "lucide-react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, Transition, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import DonationModals from "./DonationModals";
 import {
   BarChart,
@@ -396,90 +396,80 @@ export default function SuperAdminDashboard() {
         <Transition show={isUniversityModalOpen} as={Fragment}>
           <Dialog
             as="div"
-            className="fixed inset-0 z-50 overflow-y-auto"
+            className="relative z-50 focus:outline-none"
             onClose={() => setIsUniversityModalOpen(false)}
           >
-            <div className="min-h-screen px-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Dialog.Overlay className="fixed inset-0 bg-red-900/20 backdrop-blur-sm transition-opacity" />
-              </Transition.Child>
+            <DialogBackdrop className="fixed inset-0 bg-red-900/20 backdrop-blur-sm transition-opacity" />
 
-              <span className="inline-block h-screen align-middle" aria-hidden="true">&#8203;</span>
+            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-red-950 p-6 text-left align-middle shadow-xl transition-all border border-red-200 dark:border-red-900">
+                    <div className="flex justify-between items-center mb-6">
+                      <DialogTitle as="h3" className="text-xl font-bold text-red-900 dark:text-red-100">
+                        Donors at {selectedUniversity?.university}
+                      </DialogTitle>
+                      <button
+                        onClick={() => setIsUniversityModalOpen(false)}
+                        className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
 
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <div className="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-red-950 border border-red-200 dark:border-red-900 shadow-xl rounded-2xl">
-                  <div className="flex justify-between items-center mb-6">
-                    <Dialog.Title as="h3" className="text-xl font-bold text-red-900 dark:text-red-100">
-                      Donors at {selectedUniversity?.university}
-                    </Dialog.Title>
-                    <button
-                      onClick={() => setIsUniversityModalOpen(false)}
-                      className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  <div className="overflow-x-auto max-h-[60vh]">
-                    <table className="min-w-full divide-y divide-red-200 dark:divide-red-800">
-                      <thead className="sticky top-0 bg-white dark:bg-red-950 z-10">
-                        <tr>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-red-900 dark:text-red-100 uppercase tracking-wider">Donor Name</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-red-900 dark:text-red-100 uppercase tracking-wider">Blood Group</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-red-900 dark:text-red-100 uppercase tracking-wider">Phone</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-red-100 dark:divide-red-900">
-                        {selectedUniversity?.donorDetails?.map((donor, idx) => (
-                          <tr key={idx} className="hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                            <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-red-900 dark:text-red-100">{donor.name}</td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm">
-                              <span className="px-2 py-1 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded text-xs font-bold ring-1 ring-red-200 dark:ring-red-800">
-                                {donor.bloodGroup}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-red-700 dark:text-red-300">
-                              <a href={`tel:${donor.phone}`} className="hover:underline text-red-600 dark:text-red-400">
-                                {donor.phone}
-                              </a>
-                            </td>
-                          </tr>
-                        ))}
-                        {(!selectedUniversity?.donorDetails || selectedUniversity.donorDetails.length === 0) && (
+                    <div className="overflow-x-auto max-h-[60vh]">
+                      <table className="min-w-full divide-y divide-red-200 dark:divide-red-800">
+                        <thead className="sticky top-0 bg-white dark:bg-red-950 z-10">
                           <tr>
-                            <td colSpan="3" className="px-4 py-8 text-center text-red-500 italic">No donor details available</td>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-red-900 dark:text-red-100 uppercase tracking-wider">Donor Name</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-red-900 dark:text-red-100 uppercase tracking-wider">Blood Group</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-red-900 dark:text-red-100 uppercase tracking-wider">Phone</th>
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody className="divide-y divide-red-100 dark:divide-red-900">
+                          {selectedUniversity?.donorDetails?.map((donor, idx) => (
+                            <tr key={idx} className="hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-red-900 dark:text-red-100">{donor.name}</td>
+                              <td className="px-4 py-3 whitespace-nowrap text-sm">
+                                <span className="px-2 py-1 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded text-xs font-bold ring-1 ring-red-200 dark:ring-red-800">
+                                  {donor.bloodGroup}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-red-700 dark:text-red-300">
+                                <a href={`tel:${donor.phone}`} className="hover:underline text-red-600 dark:text-red-400">
+                                  {donor.phone}
+                                </a>
+                              </td>
+                            </tr>
+                          ))}
+                          {(!selectedUniversity?.donorDetails || selectedUniversity.donorDetails.length === 0) && (
+                            <tr>
+                              <td colSpan="3" className="px-4 py-8 text-center text-red-500 italic">No donor details available</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
 
-                  <div className="mt-8 flex justify-end">
-                    <Button
-                      onClick={() => setIsUniversityModalOpen(false)}
-                      className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6"
-                    >
-                      Close
-                    </Button>
-                  </div>
-                </div>
-              </Transition.Child>
+                    <div className="mt-8 flex justify-end">
+                      <Button
+                        onClick={() => setIsUniversityModalOpen(false)}
+                        className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6"
+                      >
+                        Close
+                      </Button>
+                    </div>
+                  </DialogPanel>
+                </Transition.Child>
+              </div>
             </div>
           </Dialog>
         </Transition>

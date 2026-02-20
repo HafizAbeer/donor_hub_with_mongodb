@@ -126,6 +126,8 @@ export default function AddUser() {
 
         const userData = {
           ...formData,
+          phone: `+92${formData.phone}`,
+          emergencyPhone: formData.emergencyPhone ? `+92${formData.emergencyPhone}` : '',
           university: finalUniversity,
           department: finalDepartment,
           role: 'user',
@@ -266,7 +268,12 @@ export default function AddUser() {
                     id="phone"
                     name="phone"
                     value={formData.phone}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      if (val.length <= 10) {
+                        setFormData({ ...formData, phone: val });
+                      }
+                    }}
                     placeholder="3001234567"
                     className="border-0 focus:ring-0 shadow-none bg-transparent"
                     required
@@ -565,7 +572,12 @@ export default function AddUser() {
                     id="emergencyPhone"
                     name="emergencyPhone"
                     value={formData.emergencyPhone}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      if (val.length <= 10) {
+                        setFormData({ ...formData, emergencyPhone: val });
+                      }
+                    }}
                     placeholder="3123456789"
                     className="border-0 focus:ring-0 shadow-none bg-transparent"
                   />

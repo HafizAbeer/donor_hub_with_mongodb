@@ -29,6 +29,17 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: String,
         required: true,
+        validate: {
+            validator: function (v) {
+                // Regex for international format: + followed by 1-3 digits country code and 7-12 digits number
+                // Specific for Pakistan: +92 followed by 10 digits
+                if (v.startsWith('+92')) {
+                    return /^\+92\d{10}$/.test(v);
+                }
+                return /^\+[1-9]\d{1,14}$/.test(v);
+            },
+            message: props => `${props.value} is not a valid international phone number! For Pakistan (+92), it must be exactly 10 digits after the code.`
+        }
     },
     bloodGroup: {
         type: String,
@@ -76,6 +87,16 @@ const userSchema = new mongoose.Schema({
     emergencyPhone: {
         type: String,
         default: '',
+        validate: {
+            validator: function (v) {
+                if (!v) return true; // Optional field
+                if (v.startsWith('+92')) {
+                    return /^\+92\d{10}$/.test(v);
+                }
+                return /^\+[1-9]\d{1,14}$/.test(v);
+            },
+            message: props => `${props.value} is not a valid international phone number!`
+        }
     },
     medicalConditions: {
         type: String,
