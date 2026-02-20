@@ -1,3 +1,4 @@
+import express from 'express';
 import { getUniversities, addUniversity, deleteUniversity } from '../controllers/universityController.js';
 import { protect, admin, superAdmin } from '../middleware/authMiddleware.js';
 
