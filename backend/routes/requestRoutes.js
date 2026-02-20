@@ -4,12 +4,11 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+router.delete('/bulk', protect, deleteAllRequests);
+
 router.route('/')
     .get(protect, getRequests)
     .post(protect, createRequest);
-
-router.route('/bulk')
-    .delete(protect, deleteAllRequests);
 
 router.route('/:id')
     .put(protect, updateRequest)

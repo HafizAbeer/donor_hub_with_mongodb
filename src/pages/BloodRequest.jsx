@@ -122,8 +122,10 @@ export default function BloodRequest() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+    const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -213,7 +215,8 @@ export default function BloodRequest() {
             !formData.contactNumber?.trim() ||
             !formData.requiredTime?.trim()
         ) {
-            alert("Please fill all mandatory fields marked with (*)");
+            setErrorMessage("Please fill all mandatory fields marked with (*)");
+            setIsErrorModalOpen(true);
             return;
         }
 
@@ -358,7 +361,9 @@ export default function BloodRequest() {
                 setTimeout(() => setIsSuccessModalOpen(false), 2000);
             } else {
                 const data = await res.json();
-                alert(data.message || "Failed to delete all requests");
+                setErrorMessage(data.message || "Failed to delete all requests");
+                setIsErrorModalOpen(true);
+                setIsBulkDeleteModalOpen(false);
             }
         } catch (error) {
             console.error("Failed to clear all", error);
@@ -751,6 +756,26 @@ export default function BloodRequest() {
                                     {isSubmitting ? "Clearing..." : "Yes, Clear Everything"}
                                 </Button>
                             </div>
+                        </Card>
+                    </div>
+                )
+            }
+
+            {
+                isErrorModalOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+                        <Card className="w-full max-w-sm p-8 bg-white dark:bg-red-950 border-red-200 text-center shadow-2xl">
+                            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <AlertTriangle className="w-12 h-12 text-red-600" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-red-900 mb-2">Error</h3>
+                            <p className="text-red-700 mb-6">{errorMessage}</p>
+                            <Button
+                                onClick={() => setIsErrorModalOpen(false)}
+                                className="w-full bg-red-600 hover:bg-red-700 text-white"
+                            >
+                                Close
+                            </Button>
                         </Card>
                     </div>
                 )
