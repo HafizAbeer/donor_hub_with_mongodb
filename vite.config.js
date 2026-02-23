@@ -16,6 +16,8 @@ export default defineConfig({
         short_name: "DonorHub",
         description: "Blood Donation Management System",
         theme_color: "#ffffff",
+        background_color: "#ffffff",
+        display: "standalone",
         icons: [
           {
             src: "/icon-192.png",
@@ -29,6 +31,9 @@ export default defineConfig({
             purpose: "any maskable",
           },
         ],
+      },
+      devOptions: {
+        enabled: true,
       },
     }),
   ],
