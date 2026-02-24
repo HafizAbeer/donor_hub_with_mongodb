@@ -145,13 +145,19 @@ const getAdminStats = async (req, res) => {
                     university: { $ne: '' }
                 }
             },
-            { $group: { _id: '$university', donors: { $sum: 1 } } },
+            {
+                $group: {
+                    _id: { $toLower: { $trim: { input: '$university' } } },
+                    donors: { $sum: 1 },
+                    name: { $first: '$university' }
+                }
+            },
             { $sort: { donors: -1 } },
             { $limit: 10 }
         ]);
 
         const universityData = universityStats.map(u => ({
-            university: u._id,
+            university: u.name,
             donors: u.donors
         }));
 
@@ -162,13 +168,19 @@ const getAdminStats = async (req, res) => {
                     addedBy: adminId
                 }
             },
-            { $group: { _id: '$city', donors: { $sum: 1 } } },
+            {
+                $group: {
+                    _id: { $toLower: { $trim: { input: '$city' } } },
+                    donors: { $sum: 1 },
+                    name: { $first: '$city' }
+                }
+            },
             { $sort: { donors: -1 } },
             { $limit: 10 }
         ]);
 
         const cityData = cityStats.map(c => ({
-            city: c._id || 'Unknown',
+            city: c.name || 'Unknown',
             donors: c.donors,
             donations: Math.floor(c.donors * 1.5) // Estimated based on donor count
         }));
@@ -221,13 +233,19 @@ const getSuperAdminStats = async (req, res) => {
         }));
 
         const cityStats = await User.aggregate([
-            { $group: { _id: '$city', donors: { $sum: 1 } } },
+            {
+                $group: {
+                    _id: { $toLower: { $trim: { input: '$city' } } },
+                    donors: { $sum: 1 },
+                    name: { $first: '$city' }
+                }
+            },
             { $sort: { donors: -1 } },
             { $limit: 10 }
         ]);
 
         const cityData = cityStats.map(c => ({
-            city: c._id,
+            city: c.name || 'Unknown',
             donors: c.donors,
             donations: Math.floor(c.donors * 1.5)
         }));
@@ -316,8 +334,9 @@ const getSuperAdminStats = async (req, res) => {
             { $match: { role: 'user', university: { $ne: '' } } },
             {
                 $group: {
-                    _id: '$university',
+                    _id: { $toLower: { $trim: { input: '$university' } } },
                     donorsCount: { $sum: 1 },
+                    name: { $first: '$university' },
                     donorsList: {
                         $push: {
                             name: '$name',
@@ -332,7 +351,7 @@ const getSuperAdminStats = async (req, res) => {
         ]);
 
         const universityData = universityStats.map(u => ({
-            university: u._id,
+            university: u.name,
             donors: u.donorsCount,
             donorDetails: u.donorsList
         }));
