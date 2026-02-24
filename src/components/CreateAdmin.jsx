@@ -30,6 +30,7 @@ export default function CreateAdmin() {
     department: '',
     bloodGroup: '',
     cnic: '',
+    age: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -143,6 +144,7 @@ export default function CreateAdmin() {
             university: finalUniversity,
             department: finalDepartment,
             cnic: formData.cnic,
+            age: formData.age,
           })
         });
 
@@ -169,6 +171,7 @@ export default function CreateAdmin() {
               department: '',
               bloodGroup: '',
               cnic: '',
+              age: '',
             });
           }, 2000);
         } else {
@@ -325,6 +328,22 @@ export default function CreateAdmin() {
                 value={formData.cnic}
                 onChange={handleChange}
                 placeholder="35202-1234567-8"
+                className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="age" className="text-red-900 dark:text-red-100 flex items-center gap-2">
+                <User className="w-4 h-4 text-red-600" />
+                Age
+              </Label>
+              <Input
+                type="number"
+                id="age"
+                name="age"
+                value={formData.age}
+                onChange={handleChange}
+                placeholder="25"
                 className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
               />
             </div>

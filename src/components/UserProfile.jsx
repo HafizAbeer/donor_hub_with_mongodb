@@ -59,6 +59,7 @@ export default function UserProfile() {
     city: '',
     university: '',
     department: '',
+    age: '',
   });
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export default function UserProfile() {
         city: user.city || '',
         university: user.university || '',
         department: user.department || '',
+        age: user.age || '',
       });
     }
   }, [user]);
@@ -457,6 +459,22 @@ export default function UserProfile() {
                     onChange={handleChange}
                     className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
                     required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="age" className="text-red-900 dark:text-red-100 flex items-center gap-2">
+                    <UserCircle className="w-4 h-4 text-red-600" />
+                    Age
+                  </Label>
+                  <Input
+                    type="number"
+                    id="age"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleChange}
+                    className="mt-2 bg-white dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500"
+                    placeholder="25"
                   />
                 </div>
               </div>

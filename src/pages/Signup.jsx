@@ -22,6 +22,7 @@ export default function Signup() {
     password: "",
     confirmPassword: "",
     cnic: "",
+    age: "",
   });
   const [error, setError] = useState("");
   const [universities, setUniversities] = useState([]);
@@ -73,6 +74,7 @@ export default function Signup() {
         university: formData.university,
         department: formData.department,
         cnic: formData.cnic,
+        age: formData.age,
         role: "user",
       };
 
@@ -210,6 +212,21 @@ export default function Signup() {
                 onChange={handleChange}
                 placeholder="35201-XXXXXXX-X"
                 className="mt-1 bg-white/20 text-white placeholder-white/70 border-red-300 focus:ring-red-400"
+              />
+            </div>
+            <div>
+              <Label htmlFor="age" className="text-white">Age</Label>
+              <Input
+                type="number"
+                id="age"
+                name="age"
+                value={formData.age}
+                onChange={handleChange}
+                placeholder="25"
+                min="18"
+                max="100"
+                className="mt-1 bg-white/20 text-white placeholder-white/70 border-red-300 focus:ring-red-400"
+                required
               />
             </div>
           </div>

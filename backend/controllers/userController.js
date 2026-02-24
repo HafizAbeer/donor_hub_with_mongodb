@@ -55,7 +55,7 @@ const getUsers = async (req, res) => {
 const createUser = async (req, res) => {
     const {
         name, email, password, phone, bloodGroup, city, address,
-        role, province, gender, dateOfBirth, hostelite, lastDonationDate,
+        role, province, gender, dateOfBirth, age, hostelite, lastDonationDate,
         cnic, emergencyContact, emergencyPhone, medicalConditions, allergies,
         permissions, university, department
     } = req.body;
@@ -79,6 +79,7 @@ const createUser = async (req, res) => {
             province,
             gender,
             dateOfBirth,
+            age,
             hostelite,
             university,
             department,
@@ -106,6 +107,7 @@ const createUser = async (req, res) => {
                 department: user.department,
                 cnic: user.cnic,
                 province: user.province,
+                age: user.age,
             });
         } else {
             res.status(400).json({ message: 'Invalid user data' });
@@ -149,6 +151,7 @@ const updateUser = async (req, res) => {
             user.province = req.body.province || user.province;
             user.gender = req.body.gender || user.gender;
             user.dateOfBirth = req.body.dateOfBirth || user.dateOfBirth;
+            user.age = req.body.age !== undefined ? req.body.age : user.age;
             user.emergencyContact = req.body.emergencyContact !== undefined ? req.body.emergencyContact : user.emergencyContact;
             user.emergencyPhone = req.body.emergencyPhone !== undefined ? req.body.emergencyPhone : user.emergencyPhone;
             user.medicalConditions = req.body.medicalConditions !== undefined ? req.body.medicalConditions : user.medicalConditions;

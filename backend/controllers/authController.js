@@ -12,7 +12,7 @@ const generateToken = (id) => {
 const registerUser = async (req, res) => {
     const {
         name, email, password, phone, bloodGroup, city, address, role,
-        province, gender, dateOfBirth, hostelite, university, department,
+        province, gender, dateOfBirth, age, hostelite, university, department,
         cnic, emergencyContact, emergencyPhone, medicalConditions, allergies
     } = req.body;
 
@@ -48,6 +48,7 @@ const registerUser = async (req, res) => {
             province,
             gender,
             dateOfBirth,
+            age,
             hostelite,
             university,
             department,
@@ -230,6 +231,7 @@ const getMe = async (req, res) => {
             profileVisibility: user.profileVisibility,
             university: user.university,
             department: user.department,
+            age: user.age,
         });
     } else {
         res.status(404).json({ message: 'User not found' });

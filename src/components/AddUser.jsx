@@ -36,6 +36,7 @@ export default function AddUser() {
     password: '',
     university: '',
     department: '',
+    age: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -131,6 +132,7 @@ export default function AddUser() {
           emergencyPhone: formData.emergencyPhone ? `+92${formData.emergencyPhone}` : '',
           university: finalUniversity,
           department: finalDepartment,
+          age: formData.age,
           role: 'user',
           lastDonationDate: formData.lastDonation || null,
         };
@@ -355,6 +357,19 @@ export default function AddUser() {
                   onChange={handleChange}
                   className={`bg-white dark:bg-red-900/10 border-red-200 dark:border-red-800 ${errors.dateOfBirth ? 'border-red-500' : ''}`}
                   required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="age" className="text-red-900 dark:text-red-100">Age</Label>
+                <Input
+                  id="age"
+                  name="age"
+                  type="number"
+                  value={formData.age}
+                  onChange={handleChange}
+                  placeholder="25"
+                  className="bg-white dark:bg-red-900/10 border-red-200 dark:border-red-800"
                 />
               </div>
             </div>

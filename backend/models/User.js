@@ -68,6 +68,9 @@ const userSchema = new mongoose.Schema({
     dateOfBirth: {
         type: Date,
     },
+    age: {
+        type: Number,
+    },
     hostelite: {
         type: Boolean,
         default: false,
