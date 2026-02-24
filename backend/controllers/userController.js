@@ -29,21 +29,18 @@ const getUsers = async (req, res) => {
             query.profileVisibility = true;
         }
 
-        // If admin, they can only see users (donors) they added, or themselves, or admins if they are searching for admins
         if (req.user.role === 'admin') {
-            // Admins can only see donors they added (via Add User or Auto-assignment during signup)
+
             if (role === 'user') {
                 query.role = 'user';
                 query.addedBy = req.user._id;
             } else if (!role) {
-                // If fetching all users, only show them donors they added or themselves
                 query.$or = [
                     { role: 'user', addedBy: req.user._id },
                     { _id: req.user._id }
                 ];
             }
         } else if (req.user.role === 'superadmin') {
-            // SuperAdmin can see everything
             if (role) query.role = role;
         }
 
@@ -125,7 +122,6 @@ const updateUser = async (req, res) => {
         if (user) {
             if (req.user.role !== 'superadmin' && req.user._id.toString() !== user._id.toString()) {
                 if (req.user.role === 'admin') {
-                    // Admins can only update users they added
                     if (!user.addedBy || user.addedBy.toString() !== req.user._id.toString()) {
                         return res.status(401).json({ message: 'Not authorized to update this donor (not added by you)' });
                     }
@@ -192,7 +188,6 @@ const deleteUser = async (req, res) => {
         if (user) {
             if (req.user.role !== 'superadmin') {
                 if (req.user.role === 'admin') {
-                    // Admins can only delete users they added
                     if (!user.addedBy || user.addedBy.toString() !== req.user._id.toString()) {
                         return res.status(401).json({ message: 'Not authorized to delete this donor (not added by you)' });
                     }

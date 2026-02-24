@@ -2,12 +2,18 @@ import User from '../models/User.js';
 import Donation from '../models/Donation.js';
 import BloodRequest from '../models/BloodRequest.js';
 
+const toTitleCase = (str) => {
+    if (!str) return "";
+    return str.trim().toLowerCase().split(' ').map(word => {
+        return word.charAt(0).toUpperCase() + word.slice(1);
+    }).join(' ');
+};
+
 const getAdminStats = async (req, res) => {
     try {
         const adminId = req.user._id;
         const university = req.user.university;
 
-        // Find all donor IDs belonging to this admin
         const myDonorIds = await User.find({
             role: 'user',
             addedBy: adminId
@@ -55,13 +61,25 @@ const getAdminStats = async (req, res) => {
                     addedBy: adminId
                 }
             },
-            { $group: { _id: '$bloodGroup', count: { $sum: 1 } } }
+            {
+                $group: {
+                    _id: { $toUpper: { $trim: { input: '$bloodGroup' } } },
+                    count: { $sum: 1 }
+                }
+            }
         ]);
 
-        const bloodGroupData = bloodGroups.map(bg => ({
-            name: bg._id,
-            value: bg.count
-        }));
+        const bloodGroupDataMap = new Map();
+        bloodGroups.forEach(bg => {
+            const name = bg._id || 'Unknown';
+            const existing = bloodGroupDataMap.get(name);
+            if (existing) {
+                existing.value += bg.count;
+            } else {
+                bloodGroupDataMap.set(name, { name, value: bg.count });
+            }
+        });
+        const bloodGroupData = Array.from(bloodGroupDataMap.values());
 
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
@@ -156,10 +174,17 @@ const getAdminStats = async (req, res) => {
             { $limit: 10 }
         ]);
 
-        const universityData = universityStats.map(u => ({
-            university: u.name,
-            donors: u.donors
-        }));
+        const uniDataMap = new Map();
+        universityStats.forEach(u => {
+            const name = toTitleCase(u.name);
+            const existing = uniDataMap.get(name);
+            if (existing) {
+                existing.donors += u.donors;
+            } else {
+                uniDataMap.set(name, { university: name, donors: u.donors });
+            }
+        });
+        const universityData = Array.from(uniDataMap.values());
 
         const cityStats = await User.aggregate([
             {
@@ -179,11 +204,22 @@ const getAdminStats = async (req, res) => {
             { $limit: 10 }
         ]);
 
-        const cityData = cityStats.map(c => ({
-            city: c.name || 'Unknown',
-            donors: c.donors,
-            donations: Math.floor(c.donors * 1.5) // Estimated based on donor count
-        }));
+        const cityDataMap = new Map();
+        cityStats.forEach(c => {
+            const name = toTitleCase(c.name || 'Unknown');
+            const existing = cityDataMap.get(name);
+            if (existing) {
+                existing.donors += c.donors;
+                existing.donations += Math.floor(c.donors * 1.5);
+            } else {
+                cityDataMap.set(name, {
+                    city: name,
+                    donors: c.donors,
+                    donations: Math.floor(c.donors * 1.5)
+                });
+            }
+        });
+        const cityData = Array.from(cityDataMap.values());
 
         res.json({
             stats: {
@@ -224,13 +260,25 @@ const getSuperAdminStats = async (req, res) => {
         const totalDonations = await Donation.countDocuments();
 
         const bloodGroups = await User.aggregate([
-            { $group: { _id: '$bloodGroup', count: { $sum: 1 } } }
+            {
+                $group: {
+                    _id: { $toUpper: { $trim: { input: '$bloodGroup' } } },
+                    count: { $sum: 1 }
+                }
+            }
         ]);
 
-        const bloodGroupData = bloodGroups.map(bg => ({
-            name: bg._id,
-            value: bg.count
-        }));
+        const bloodGroupDataMap = new Map();
+        bloodGroups.forEach(bg => {
+            const name = bg._id || 'Unknown';
+            const existing = bloodGroupDataMap.get(name);
+            if (existing) {
+                existing.value += bg.count;
+            } else {
+                bloodGroupDataMap.set(name, { name, value: bg.count });
+            }
+        });
+        const bloodGroupData = Array.from(bloodGroupDataMap.values());
 
         const cityStats = await User.aggregate([
             {
@@ -244,11 +292,22 @@ const getSuperAdminStats = async (req, res) => {
             { $limit: 10 }
         ]);
 
-        const cityData = cityStats.map(c => ({
-            city: c.name || 'Unknown',
-            donors: c.donors,
-            donations: Math.floor(c.donors * 1.5)
-        }));
+        const cityDataMap = new Map();
+        cityStats.forEach(c => {
+            const name = toTitleCase(c.name || 'Unknown');
+            const existing = cityDataMap.get(name);
+            if (existing) {
+                existing.donors += c.donors;
+                existing.donations += Math.floor(c.donors * 1.5);
+            } else {
+                cityDataMap.set(name, {
+                    city: name,
+                    donors: c.donors,
+                    donations: Math.floor(c.donors * 1.5)
+                });
+            }
+        });
+        const cityData = Array.from(cityDataMap.values());
 
         const users = await User.find().sort({ createdAt: -1 }).limit(5);
         const donations = await Donation.find().populate('donor', 'name').sort({ createdAt: -1 }).limit(5);
@@ -350,11 +409,22 @@ const getSuperAdminStats = async (req, res) => {
             { $limit: 10 }
         ]);
 
-        const universityData = universityStats.map(u => ({
-            university: u.name,
-            donors: u.donorsCount,
-            donorDetails: u.donorsList
-        }));
+        const uniDataMap = new Map();
+        universityStats.forEach(u => {
+            const name = toTitleCase(u.name);
+            const existing = uniDataMap.get(name);
+            if (existing) {
+                existing.donors += u.donorsCount;
+                existing.donorDetails = [...(existing.donorDetails || []), ...(u.donorsList || [])];
+            } else {
+                uniDataMap.set(name, {
+                    university: name,
+                    donors: u.donorsCount,
+                    donorDetails: u.donorsList
+                });
+            }
+        });
+        const universityData = Array.from(uniDataMap.values());
 
         res.json({
             stats: {

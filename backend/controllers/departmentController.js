@@ -1,8 +1,6 @@
 import Department from '../models/Department.js';
 
-// @desc    Get all departments
-// @route   GET /api/departments
-// @access  Public
+
 export const getDepartments = async (req, res) => {
     try {
         const departments = await Department.find({}).sort({ name: 1 });
@@ -12,9 +10,7 @@ export const getDepartments = async (req, res) => {
     }
 };
 
-// @desc    Add a new department
-// @route   POST /api/departments
-// @access  Private/Admin
+
 export const addDepartment = async (req, res) => {
     const { name } = req.body;
 
@@ -36,9 +32,7 @@ export const addDepartment = async (req, res) => {
     }
 };
 
-// @desc    Delete a department
-// @route   DELETE /api/departments/:id
-// @access  Private/SuperAdmin
+
 export const deleteDepartment = async (req, res) => {
     try {
         const department = await Department.findById(req.params.id);

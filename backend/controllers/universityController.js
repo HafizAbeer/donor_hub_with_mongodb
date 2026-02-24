@@ -1,8 +1,5 @@
 import University from '../models/University.js';
 
-// @desc    Get all universities
-// @route   GET /api/universities
-// @access  Public
 export const getUniversities = async (req, res) => {
     try {
         const universities = await University.find({}).sort({ name: 1 });
@@ -12,9 +9,6 @@ export const getUniversities = async (req, res) => {
     }
 };
 
-// @desc    Add a new university
-// @route   POST /api/universities
-// @access  Private/Admin
 export const addUniversity = async (req, res) => {
     const { name } = req.body;
 
@@ -36,9 +30,6 @@ export const addUniversity = async (req, res) => {
     }
 };
 
-// @desc    Delete a university
-// @route   DELETE /api/universities/:id
-// @access  Private/SuperAdmin
 export const deleteUniversity = async (req, res) => {
     try {
         const university = await University.findById(req.params.id);
