@@ -164,9 +164,18 @@ const getAdminStats = async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: 'donations',
+                    localField: '_id',
+                    foreignField: 'donor',
+                    as: 'userDonations'
+                }
+            },
+            {
                 $group: {
                     _id: { $toLower: { $trim: { input: '$university' } } },
                     donors: { $sum: 1 },
+                    donations: { $sum: { $size: '$userDonations' } },
                     name: { $first: '$university' }
                 }
             },
@@ -180,8 +189,9 @@ const getAdminStats = async (req, res) => {
             const existing = uniDataMap.get(name);
             if (existing) {
                 existing.donors += u.donors;
+                existing.donations += u.donations;
             } else {
-                uniDataMap.set(name, { university: name, donors: u.donors });
+                uniDataMap.set(name, { university: name, donors: u.donors, donations: u.donations });
             }
         });
         const universityData = Array.from(uniDataMap.values());
@@ -194,9 +204,18 @@ const getAdminStats = async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: 'donations',
+                    localField: '_id',
+                    foreignField: 'donor',
+                    as: 'userDonations'
+                }
+            },
+            {
                 $group: {
                     _id: { $toLower: { $trim: { input: '$city' } } },
                     donors: { $sum: 1 },
+                    donations: { $sum: { $size: '$userDonations' } },
                     name: { $first: '$city' }
                 }
             },
@@ -210,12 +229,12 @@ const getAdminStats = async (req, res) => {
             const existing = cityDataMap.get(name);
             if (existing) {
                 existing.donors += c.donors;
-                existing.donations += Math.floor(c.donors * 1.5);
+                existing.donations += c.donations;
             } else {
                 cityDataMap.set(name, {
                     city: name,
                     donors: c.donors,
-                    donations: Math.floor(c.donors * 1.5)
+                    donations: c.donations
                 });
             }
         });
@@ -282,9 +301,18 @@ const getSuperAdminStats = async (req, res) => {
 
         const cityStats = await User.aggregate([
             {
+                $lookup: {
+                    from: 'donations',
+                    localField: '_id',
+                    foreignField: 'donor',
+                    as: 'userDonations'
+                }
+            },
+            {
                 $group: {
                     _id: { $toLower: { $trim: { input: '$city' } } },
                     donors: { $sum: 1 },
+                    donations: { $sum: { $size: '$userDonations' } },
                     name: { $first: '$city' }
                 }
             },
@@ -298,12 +326,12 @@ const getSuperAdminStats = async (req, res) => {
             const existing = cityDataMap.get(name);
             if (existing) {
                 existing.donors += c.donors;
-                existing.donations += Math.floor(c.donors * 1.5);
+                existing.donations += c.donations;
             } else {
                 cityDataMap.set(name, {
                     city: name,
                     donors: c.donors,
-                    donations: Math.floor(c.donors * 1.5)
+                    donations: c.donations
                 });
             }
         });
@@ -392,15 +420,25 @@ const getSuperAdminStats = async (req, res) => {
         const universityStats = await User.aggregate([
             { $match: { role: 'user', university: { $ne: '' } } },
             {
+                $lookup: {
+                    from: 'donations',
+                    localField: '_id',
+                    foreignField: 'donor',
+                    as: 'userDonations'
+                }
+            },
+            {
                 $group: {
                     _id: { $toLower: { $trim: { input: '$university' } } },
                     donorsCount: { $sum: 1 },
+                    donationsCount: { $sum: { $size: '$userDonations' } },
                     name: { $first: '$university' },
                     donorsList: {
                         $push: {
                             name: '$name',
                             phone: '$phone',
-                            bloodGroup: '$bloodGroup'
+                            bloodGroup: '$bloodGroup',
+                            donations: { $size: '$userDonations' }
                         }
                     }
                 }
@@ -415,11 +453,13 @@ const getSuperAdminStats = async (req, res) => {
             const existing = uniDataMap.get(name);
             if (existing) {
                 existing.donors += u.donorsCount;
+                existing.donations += u.donationsCount;
                 existing.donorDetails = [...(existing.donorDetails || []), ...(u.donorsList || [])];
             } else {
                 uniDataMap.set(name, {
                     university: name,
                     donors: u.donorsCount,
+                    donations: u.donationsCount,
                     donorDetails: u.donorsList
                 });
             }
