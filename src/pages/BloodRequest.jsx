@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
+import { toTitleCase } from "@/lib/utils";
 import {
     Pencil,
     Trash2,
@@ -191,7 +192,15 @@ export default function BloodRequest() {
             }));
             return;
         }
-        const nextValue = name === "status" ? normalizeStatus(value) : value;
+
+        // Apply Title Case to text fields
+        let finalValue = value;
+        const textFields = ["patientName", "hospital", "notes"];
+        if (textFields.includes(name) && typeof finalValue === "string") {
+            finalValue = toTitleCase(finalValue);
+        }
+
+        const nextValue = name === "status" ? normalizeStatus(finalValue) : finalValue;
         setFormData((prev) => ({ ...prev, [name]: nextValue }));
     };
 

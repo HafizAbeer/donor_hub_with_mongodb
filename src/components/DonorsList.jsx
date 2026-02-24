@@ -24,6 +24,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toTitleCase } from "@/lib/utils";
 import { fetchUniversities, addUniversity as addNewUniversityApi } from "@/services/universityService";
 import { fetchDepartments, addDepartment as addNewDepartmentApi } from "@/services/departmentService";
 import { Dialog, Transition, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
@@ -891,7 +892,7 @@ export default function DonorsList() {
                     <Input
                       id="edit-name"
                       value={editForm.name}
-                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      onChange={(e) => setEditForm({ ...editForm, name: toTitleCase(e.target.value) })}
                       required
                     />
                   </div>
@@ -912,7 +913,7 @@ export default function DonorsList() {
                       <Input
                         id="edit-city"
                         value={editForm.city}
-                        onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                        onChange={(e) => setEditForm({ ...editForm, city: toTitleCase(e.target.value) })}
                         required
                       />
                     </div>
@@ -938,7 +939,7 @@ export default function DonorsList() {
                       <Input
                         id="edit-cnic"
                         value={editForm.cnic}
-                        onChange={(e) => setEditForm({ ...editForm, cnic: e.target.value })}
+                        onChange={(e) => setEditForm({ ...editForm, cnic: toTitleCase(e.target.value) })}
                         placeholder="35201-XXXXXXX-X"
                       />
                     </div>
@@ -974,7 +975,7 @@ export default function DonorsList() {
                               type="text"
                               placeholder="Type new university name..."
                               value={newUniversityName}
-                              onChange={(e) => setNewUniversityName(e.target.value)}
+                              onChange={(e) => setNewUniversityName(toTitleCase(e.target.value))}
                               className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
                               autoFocus
                             />
@@ -1014,7 +1015,7 @@ export default function DonorsList() {
                               type="text"
                               placeholder="Type new department name..."
                               value={newDepartmentName}
-                              onChange={(e) => setNewDepartmentName(e.target.value)}
+                              onChange={(e) => setNewDepartmentName(toTitleCase(e.target.value))}
                               className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
                               autoFocus
                             />
@@ -1030,7 +1031,7 @@ export default function DonorsList() {
                     <Input
                       id="edit-address"
                       value={editForm.address}
-                      onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                      onChange={(e) => setEditForm({ ...editForm, address: toTitleCase(e.target.value) })}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -1039,7 +1040,7 @@ export default function DonorsList() {
                       <Input
                         id="edit-conditions"
                         value={editForm.medicalConditions}
-                        onChange={(e) => setEditForm({ ...editForm, medicalConditions: e.target.value })}
+                        onChange={(e) => setEditForm({ ...editForm, medicalConditions: toTitleCase(e.target.value) })}
                         placeholder="e.g. None"
                       />
                     </div>
@@ -1048,7 +1049,7 @@ export default function DonorsList() {
                       <Input
                         id="edit-allergies"
                         value={editForm.allergies}
-                        onChange={(e) => setEditForm({ ...editForm, allergies: e.target.value })}
+                        onChange={(e) => setEditForm({ ...editForm, allergies: toTitleCase(e.target.value) })}
                         placeholder="e.g. Penicillin"
                       />
                     </div>
@@ -1059,7 +1060,7 @@ export default function DonorsList() {
                       <Input
                         id="edit-econtact"
                         value={editForm.emergencyContact}
-                        onChange={(e) => setEditForm({ ...editForm, emergencyContact: e.target.value })}
+                        onChange={(e) => setEditForm({ ...editForm, emergencyContact: toTitleCase(e.target.value) })}
                       />
                     </div>
                     <div className="space-y-2">

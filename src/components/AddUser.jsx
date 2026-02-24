@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toTitleCase } from '@/lib/utils';
 import { Dialog, Transition } from '@headlessui/react';
 import {
   UserPlus, Calendar, Droplet, MapPin, Mail, Phone, User,
@@ -165,9 +166,17 @@ export default function AddUser() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    // Apply Title Case to standard text fields
+    let finalValue = type === 'checkbox' ? checked : value;
+    const textFields = ['name', 'city', 'address', 'cnic', 'emergencyContact', 'medicalConditions', 'allergies'];
+    if (textFields.includes(name) && typeof finalValue === 'string') {
+      finalValue = toTitleCase(finalValue);
+    }
+
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: finalValue
     });
     if (errors[name]) setErrors({ ...errors, [name]: '' });
   };
@@ -382,7 +391,7 @@ export default function AddUser() {
                         type="text"
                         placeholder="Type new university name..."
                         value={newUniversityName}
-                        onChange={(e) => setNewUniversityName(e.target.value)}
+                        onChange={(e) => setNewUniversityName(toTitleCase(e.target.value))}
                         className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
                         autoFocus
                       />
@@ -424,7 +433,7 @@ export default function AddUser() {
                         type="text"
                         placeholder="Type new department name..."
                         value={newDepartmentName}
-                        onChange={(e) => setNewDepartmentName(e.target.value)}
+                        onChange={(e) => setNewDepartmentName(toTitleCase(e.target.value))}
                         className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
                         autoFocus
                       />

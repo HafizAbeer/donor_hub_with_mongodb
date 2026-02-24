@@ -21,6 +21,7 @@ import {
     Plus,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toTitleCase } from "@/lib/utils";
 import { fetchUniversities, addUniversity as addNewUniversityApi } from "@/services/universityService";
 import { fetchDepartments, addDepartment as addNewDepartmentApi } from "@/services/departmentService";
 
@@ -328,7 +329,7 @@ const AdminsList = () => {
                                 <h3 className="text-xl font-bold flex items-center gap-2"><Edit2 size={20} /> Edit Admin</h3>
                                 <div>
                                     <Label>Name</Label>
-                                    <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} required />
+                                    <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: toTitleCase(e.target.value) })} required />
                                 </div>
                                 <div>
                                     <Label>Phone Number</Label>
@@ -380,7 +381,7 @@ const AdminsList = () => {
                                         <Label>CNIC</Label>
                                         <Input
                                             value={editForm.cnic}
-                                            onChange={(e) => setEditForm({ ...editForm, cnic: e.target.value })}
+                                            onChange={(e) => setEditForm({ ...editForm, cnic: toTitleCase(e.target.value) })}
                                             placeholder="35202-XXXXXXX-X"
                                             className="bg-white dark:bg-red-950/30 border-slate-200 dark:border-red-800 text-red-900 dark:text-red-100"
                                         />
@@ -416,7 +417,7 @@ const AdminsList = () => {
                                                         type="text"
                                                         placeholder="Type new university name..."
                                                         value={newUniversityName}
-                                                        onChange={(e) => setNewUniversityName(e.target.value)}
+                                                        onChange={(e) => setNewUniversityName(toTitleCase(e.target.value))}
                                                         className="pr-10 bg-white dark:bg-red-950/50 border-red-400 focus:border-red-600"
                                                         autoFocus
                                                     />
@@ -455,7 +456,7 @@ const AdminsList = () => {
                                                         type="text"
                                                         placeholder="Type new department name..."
                                                         value={newDepartmentName}
-                                                        onChange={(e) => setNewDepartmentName(e.target.value)}
+                                                        onChange={(e) => setNewDepartmentName(toTitleCase(e.target.value))}
                                                         className="pr-10 bg-white dark:bg-red-950/50 border-red-400 focus:border-red-600"
                                                         autoFocus
                                                     />

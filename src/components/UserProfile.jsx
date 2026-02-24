@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toTitleCase } from '@/lib/utils';
 import { UserCircle, Droplet, Calendar, MapPin, Phone, Mail, Save, Heart, Award, TrendingUp, Clock, CheckCircle, Plus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ReactCountryFlag from 'react-country-flag';
@@ -164,7 +165,16 @@ export default function UserProfile() {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let finalValue = value;
+
+    // Apply Title Case to text fields
+    const textFields = ['name', 'city', 'address'];
+    if (textFields.includes(name) && typeof finalValue === 'string') {
+      finalValue = toTitleCase(finalValue);
+    }
+
+    setFormData({ ...formData, [name]: finalValue });
   };
 
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
@@ -501,7 +511,7 @@ export default function UserProfile() {
                           type="text"
                           placeholder="Type new university name..."
                           value={newUniversityName}
-                          onChange={(e) => setNewUniversityName(e.target.value)}
+                          onChange={(e) => setNewUniversityName(toTitleCase(e.target.value))}
                           className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
                           autoFocus
                         />
@@ -544,7 +554,7 @@ export default function UserProfile() {
                           type="text"
                           placeholder="Type new department name..."
                           value={newDepartmentName}
-                          onChange={(e) => setNewDepartmentName(e.target.value)}
+                          onChange={(e) => setNewDepartmentName(toTitleCase(e.target.value))}
                           className="pr-10 bg-white dark:bg-red-900/50 border-red-400 focus:border-red-600"
                           autoFocus
                         />

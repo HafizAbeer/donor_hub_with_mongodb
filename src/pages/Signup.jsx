@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
+import { toTitleCase } from "@/lib/utils";
 import logo from "@/assets/logo.png";
 import ReactCountryFlag from "react-country-flag";
 import { AlertCircle } from "lucide-react";
@@ -84,8 +85,16 @@ export default function Signup() {
   };
 
   const handleChange = (e) => {
-    const value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
-    setFormData({ ...formData, [e.target.name]: value });
+    const { name, value, type, checked } = e.target;
+    let finalValue = type === "checkbox" ? checked : value;
+
+    // Apply Title Case to text fields
+    const textFields = ["name", "city", "address", "cnic"];
+    if (textFields.includes(name) && typeof finalValue === "string") {
+      finalValue = toTitleCase(finalValue);
+    }
+
+    setFormData({ ...formData, [name]: finalValue });
     if (error) setError("");
   };
 

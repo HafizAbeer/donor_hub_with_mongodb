@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, Transition } from '@headlessui/react';
+import { toTitleCase } from '@/lib/utils';
 import {
     Calendar,
     MapPin,
@@ -298,7 +299,7 @@ export default function EventsManager() {
                                                             id="title"
                                                             placeholder="e.g., Annual Mega Blood Drive"
                                                             value={formData.title}
-                                                            onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                                            onChange={e => setFormData({ ...formData, title: toTitleCase(e.target.value) })}
                                                             required
                                                             className="bg-gray-50/50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700 focus:ring-red-500 focus:border-red-500"
                                                         />
@@ -322,7 +323,7 @@ export default function EventsManager() {
                                                                 id="location"
                                                                 placeholder="e.g., GC University"
                                                                 value={formData.location}
-                                                                onChange={e => setFormData({ ...formData, location: e.target.value })}
+                                                                onChange={e => setFormData({ ...formData, location: toTitleCase(e.target.value) })}
                                                                 required
                                                                 className="bg-gray-50/50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700 focus:ring-red-500 focus:border-red-500"
                                                             />
@@ -335,7 +336,7 @@ export default function EventsManager() {
                                                             id="description"
                                                             placeholder="Describe the event goals, timing, and requirements..."
                                                             value={formData.description}
-                                                            onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                                            onChange={e => setFormData({ ...formData, description: toTitleCase(e.target.value) })}
                                                             required
                                                             rows={4}
                                                             className="bg-gray-50/50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700 focus:ring-red-500 focus:border-red-500"

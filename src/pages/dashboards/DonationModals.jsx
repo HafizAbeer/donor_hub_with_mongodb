@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toTitleCase } from "@/lib/utils";
 
 export default function DonationModals({
     token,
@@ -143,7 +144,7 @@ export default function DonationModals({
                                             <Input
                                                 id="edit-location"
                                                 value={editForm.location}
-                                                onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+                                                onChange={(e) => setEditForm(prev => ({ ...prev, location: toTitleCase(e.target.value) }))}
                                                 className="border-red-200 focus:ring-red-500"
                                                 required
                                             />
@@ -164,7 +165,7 @@ export default function DonationModals({
                                             <Input
                                                 id="edit-notes"
                                                 value={editForm.notes}
-                                                onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                                                onChange={(e) => setEditForm(prev => ({ ...prev, notes: toTitleCase(e.target.value) }))}
                                                 className="border-red-200 focus:ring-red-500"
                                             />
                                         </div>
