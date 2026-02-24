@@ -4,9 +4,16 @@ import BloodRequest from '../models/BloodRequest.js';
 
 const toTitleCase = (str) => {
     if (!str) return "";
-    return str.trim().toLowerCase().split(' ').map(word => {
-        return word.charAt(0).toUpperCase() + word.slice(1);
-    }).join(' ');
+    // Aggressively strip invisible characters and normalize
+    return str.toString()
+        .replace(/[\u200B-\u200D\uFEFF]/g, '') // Strip zero-width chars and BOM
+        .trim()
+        .toLowerCase()
+        .split(/\s+/) // Split by any whitespace
+        .filter(word => word.length > 0)
+        .map(word => {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        }).join(' ');
 };
 
 const getAdminStats = async (req, res) => {
@@ -223,6 +230,9 @@ const getAdminStats = async (req, res) => {
             { $limit: 10 }
         ]);
 
+        console.log('--- DEBUG: getAdminStats cityStats ---');
+        cityStats.forEach(c => console.log(`ID: "${c._id}", Name: "${c.name}", Hex: ${Buffer.from(c.name || '').toString('hex')}`));
+
         const cityDataMap = new Map();
         cityStats.forEach(c => {
             const name = toTitleCase(c.name || 'Unknown');
@@ -319,6 +329,9 @@ const getSuperAdminStats = async (req, res) => {
             { $sort: { donors: -1 } },
             { $limit: 10 }
         ]);
+
+        console.log('--- DEBUG: getSuperAdminStats cityStats ---');
+        cityStats.forEach(c => console.log(`ID: "${c._id}", Name: "${c.name}", Hex: ${Buffer.from(c.name || '').toString('hex')}`));
 
         const cityDataMap = new Map();
         cityStats.forEach(c => {
